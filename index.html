@@ -280,7 +280,8 @@ const App = {
   },
   render() {
     const counts = { todo: 0, progress: 0, done: 0, archive: 0 };
-    this.data.tasks.forEach(task => { counts[task.status]++; document.getElementById('cards-' + task.status).innerHTML = ''; });
+    document.querySelectorAll('.column-cards').forEach(col => col.innerHTML = '');
+    this.data.tasks.forEach(task => { counts[task.status]++; });
     this.data.tasks.forEach(task => { const card = this.createCard(task); document.getElementById('cards-' + task.status).appendChild(card); });
     Object.keys(counts).forEach(status => { document.getElementById('count-' + status).textContent = counts[status]; });
     document.getElementById('statGoals').textContent = this.data.goals.length;
