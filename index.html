@@ -9,9 +9,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    :root { --bg-primary: #0a0a0c; --bg-secondary: #121218; --bg-tertiary: #1a1a24; --glass-bg: rgba(255,255,255,0.03); --glass-border: rgba(255,255,255,0.08); --accent-platinum: #c0c0c8; --accent-gold: #d4af37; --accent-copper: #b87333; --accent-ice: #a8d8ea; --text-primary: #f5f5f7; --text-secondary: #8a8a9a; --text-tertiary: #5a5a6a; --kanban-progress: #3d5a80; --shadow-medium: 0 8px 24px rgba(0,0,0,0.4); --shadow-elevated: 0 16px 48px rgba(0,0,0,0.5); --glow-gold: 0 0 30px rgba(212,175,55,0.2); }
+    :root { --bg-primary: #ffffff; --bg-secondary: #f8f9fa; --bg-tertiary: #e9ecef; --glass-bg: rgba(0,0,0,0.03); --glass-border: rgba(0,0,0,0.08); --accent-platinum: #c0c0c8; --accent-gold: #d4af37; --accent-copper: #b87333; --accent-ice: #a8d8ea; --text-primary: #1a1a2e; --text-secondary: #6c757d; --text-tertiary: #adb5bd; --kanban-progress: #3d5a80; --shadow-medium: 0 4px 16px rgba(0,0,0,0.1); --shadow-elevated: 0 8px 32px rgba(0,0,0,0.15); --glow-gold: 0 4px 20px rgba(212,175,55,0.15); }
     html { font-size: 16px; scroll-behavior: smooth; }
-    body { font-family: 'Outfit', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; line-height: 1.6; }
+    body { font-family: 'Outfit', sans-serif; background: #f5f5f5; color: var(--text-primary); min-height: 100vh; overflow-x: hidden; line-height: 1.6; }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: var(--bg-secondary); }
     ::-webkit-scrollbar-thumb { background: var(--text-tertiary); border-radius: 3px; }
@@ -89,10 +89,10 @@
     .card-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-tertiary); }
     .add-card-btn { width: 100%; padding: 12px; background: transparent; border: 1px dashed var(--glass-border); border-radius: 12px; color: var(--text-tertiary); font-family: 'Outfit', sans-serif; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease; margin-top: 12px; }
     .add-card-btn:hover { border-color: var(--accent-platinum); color: var(--accent-platinum); background: var(--glass-bg); }
-    .chat-toggle { position: fixed; right: 24px; bottom: 24px; width: 60px; height: 60px; background: linear-gradient(135deg, var(--accent-platinum), var(--accent-gold)); border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: var(--shadow-elevated), var(--glow-gold); transition: all 0.3s ease; z-index: 200; animation: popIn 0.6s ease-out 1s both; }
+    .chat-toggle { position: fixed; right: 24px; bottom: 24px; width: 60px; height: 60px; background: linear-gradient(135deg, var(--accent-platinum), var(--accent-gold)); border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.15), var(--glow-gold); transition: all 0.3s ease; z-index: 200; animation: popIn 0.6s ease-out 1s both; }
     @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     .chat-toggle:hover { transform: scale(1.1); }
-    .chat-panel { position: fixed; right: -400px; top: 0; width: 400px; height: 100vh; background: var(--bg-secondary); border-left: 1px solid var(--glass-border); z-index: 150; display: flex; flex-direction: column; transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: -10px 0 40px rgba(0,0,0,0.5); }
+    .chat-panel { position: fixed; right: -400px; top: 0; width: 400px; height: 100vh; background: var(--bg-secondary); border-left: 1px solid var(--glass-border); z-index: 150; display: flex; flex-direction: column; transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: -10px 0 40px rgba(0,0,0,0.1); }
     .chat-panel.open { right: 0; }
     .chat-header { padding: 24px; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; }
     .chat-title { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 600; }
