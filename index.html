@@ -143,7 +143,38 @@
     .card-delete { background: transparent; border: none; color: var(--text-tertiary); cursor: pointer; padding: 4px; opacity: 0; transition: opacity 0.2s; }
     .kanban-card:hover .card-delete { opacity: 1; }
     .card-delete:hover { color: var(--accent-copper); }
-    @media (max-width: 1200px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .kanban-board { grid-template-columns: repeat(2, 1fr); } }
+    /* View switching */
+    .view-section { display: none; }
+    .view-section.active { display: block; }
+    /* Goals view styles */
+    .goals-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+    .goal-card { background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: 16px; padding: 24px; transition: all 0.3s ease; }
+    .goal-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-medium); border-color: var(--accent-platinum); }
+    .goal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+    .goal-title { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 600; }
+    .goal-actions { display: flex; gap: 8px; }
+    .goal-action-btn { background: transparent; border: none; color: var(--text-tertiary); cursor: pointer; padding: 4px; font-size: 16px; }
+    .goal-action-btn:hover { color: var(--accent-gold); }
+    .goal-action-btn.delete:hover { color: var(--accent-copper); }
+    .goal-description { color: var(--text-secondary); font-size: 0.9375rem; margin-bottom: 16px; line-height: 1.5; }
+    .goal-meta { display: flex; gap: 16px; font-size: 0.8125rem; color: var(--text-tertiary); margin-bottom: 16px; }
+    .goal-progress-bar { height: 8px; background: var(--bg-tertiary); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+    .goal-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent-gold), #c9a227); border-radius: 4px; transition: width 0.5s ease; }
+    .goal-progress-text { font-size: 0.8125rem; color: var(--text-secondary); text-align: right; }
+    .goal-tasks { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--glass-border); }
+    .goal-task { display: flex; align-items: center; gap: 8px; padding: 8px 0; font-size: 0.875rem; }
+    .goal-task-checkbox { width: 16px; height: 16px; cursor: pointer; }
+    .goal-task.completed { text-decoration: line-through; color: var(--text-tertiary); }
+    .add-goal-btn { background: linear-gradient(135deg, var(--accent-gold), #c9a227); color: var(--bg-primary); border: none; padding: 16px 32px; border-radius: 12px; font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 1rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s ease; box-shadow: var(--glow-gold); }
+    .add-goal-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(212,175,55,0.4); }
+    /* Suggested tasks */
+    .suggested-section { background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: 16px; padding: 24px; margin-bottom: 32px; }
+    .suggested-title { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .suggested-list { display: flex; flex-direction: column; gap: 12px; }
+    .suggested-task { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--bg-tertiary); border-radius: 10px; cursor: grab; transition: all 0.2s; }
+    .suggested-task:hover { background: var(--glass-bg); }
+    .suggested-task-btn { background: transparent; border: none; color: var(--accent-gold); cursor: pointer; font-size: 18px; padding: 4px; }
+    @media (max-width: 1200px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .kanban-board { grid-template-columns: repeat(2, 1fr); } .goals-grid { grid-template-columns: 1fr; } }
     @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .main-content { margin-left: 0; padding: 20px; } .stats-grid { grid-template-columns: 1fr; } .kanban-board { grid-template-columns: 1fr; } .chat-panel { width: 100%; right: -100%; } }
   </style>
 </head>
@@ -166,23 +197,36 @@
       </div>
     </aside>
     <main class="main-content">
-      <header class="page-header"><div><h1 class="page-title">Dashboard</h1><p class="page-subtitle">Tu centro de comando personal</p></div></header>
-      <section class="stats-grid">
-        <div class="stat-card"><div class="stat-icon gold"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg></div><div class="stat-value" id="statGoals">0</div><div class="stat-label">Objetivos Activos</div></div>
-        <div class="stat-card"><div class="stat-icon platinum"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c0c0c8" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg></div><div class="stat-value" id="statTasks">0</div><div class="stat-label">Tareas Totales</div></div>
-        <div class="stat-card"><div class="stat-icon ice"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a8d8ea" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg></div><div class="stat-value" id="statProgress">0</div><div class="stat-label">En Progreso</div></div>
-        <div class="stat-card"><div class="stat-icon copper"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b87333" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg></div><div class="stat-value" id="statDone">0</div><div class="stat-label">Completadas</div></div>
+      <!-- Dashboard View -->
+      <section class="view-section active" id="view-dashboard">
+        <header class="page-header"><div><h1 class="page-title">Dashboard</h1><p class="page-subtitle">Tu centro de comando personal</p></div></header>
+        <section class="stats-grid">
+          <div class="stat-card"><div class="stat-icon gold"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg></div><div class="stat-value" id="statGoals">0</div><div class="stat-label">Objetivos Activos</div></div>
+          <div class="stat-card"><div class="stat-icon platinum"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c0c0c8" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg></div><div class="stat-value" id="statTasks">0</div><div class="stat-label">Tareas Totales</div></div>
+          <div class="stat-card"><div class="stat-icon ice"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a8d8ea" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg></div><div class="stat-value" id="statProgress">0</div><div class="stat-label">En Progreso</div></div>
+          <div class="stat-card"><div class="stat-icon copper"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b87333" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg></div><div class="stat-value" id="statDone">0</div><div class="stat-label">Completadas</div></div>
+        </section>
+        <section class="progress-section">
+          <h2 class="section-title">Progreso General</h2>
+          <div class="progress-rings">
+            <div class="progress-ring-container"><div class="progress-ring"><svg><circle class="bg" cx="60" cy="60" r="50"/><circle class="progress" id="ringGoals" cx="60" cy="60" r="50"/></svg><span class="progress-ring-value" id="ringGoalsValue">0%</span></div><span class="progress-ring-label">Objetivos<br>Completados</span></div>
+            <div class="progress-ring-container"><div class="progress-ring"><svg><circle class="bg" cx="60" cy="60" r="50"/><circle class="progress" id="ringTasks" cx="60" cy="60" r="50"/></svg><span class="progress-ring-value" id="ringTasksValue">0%</span></div><span class="progress-ring-label">Tareas<br>Completadas</span></div>
+            <div class="progress-ring-container"><div class="progress-ring"><svg><circle class="bg" cx="60" cy="60" r="50"/><circle class="progress" id="ringWeek" cx="60" cy="60" r="50"/></svg><span class="progress-ring-value" id="ringWeekValue">0%</span></div><span class="progress-ring-label">Esta<br>Semana</span></div>
+          </div>
+        </section>
+        <section class="suggested-section" id="suggestedSection" style="display:none;">
+          <h3 class="suggested-title">💡 Tareas Sugeridas para tus Objetivos</h3>
+          <div class="suggested-list" id="suggestedList"></div>
+        </section>
       </section>
-      <section class="progress-section">
-        <h2 class="section-title">Progreso General</h2>
-        <div class="progress-rings">
-          <div class="progress-ring-container"><div class="progress-ring"><svg><circle class="bg" cx="60" cy="60" r="50"/><circle class="progress" id="ringGoals" cx="60" cy="60" r="50"/></svg><span class="progress-ring-value" id="ringGoalsValue">0%</span></div><span class="progress-ring-label">Objetivos<br>Completados</span></div>
-          <div class="progress-ring-container"><div class="progress-ring"><svg><circle class="bg" cx="60" cy="60" r="50"/><circle class="progress" id="ringTasks" cx="60" cy="60" r="50"/></svg><span class="progress-ring-value" id="ringTasksValue">0%</span></div><span class="progress-ring-label">Tareas<br>Completadas</span></div>
-          <div class="progress-ring-container"><div class="progress-ring"><svg><circle class="bg" cx="60" cy="60" r="50"/><circle class="progress" id="ringWeek" cx="60" cy="60" r="50"/></svg><span class="progress-ring-value" id="ringWeekValue">0%</span></div><span class="progress-ring-label">Esta<br>Semana</span></div>
-        </div>
+      <!-- Goals View -->
+      <section class="view-section" id="view-goals">
+        <header class="page-header"><div><h1 class="page-title">Objetivos</h1><p class="page-subtitle">Define y alcanzá tus metas</p></div><button class="add-goal-btn" id="addGoalBtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nuevo Objetivo</button></header>
+        <div class="goals-grid" id="goalsGrid"></div>
       </section>
-      <section class="kanban-section">
-        <h2 class="section-title">Kanban</h2>
+      <!-- Kanban View -->
+      <section class="view-section" id="view-kanban">
+        <header class="page-header"><div><h1 class="page-title">Kanban</h1><p class="page-subtitle">Gestiona tus tareas</p></div></header>
         <div class="kanban-board">
           <div class="kanban-column" data-status="todo"><div class="column-header"><div class="column-title"><span class="column-dot todo"></span>Por Hacer</div><span class="column-count" id="count-todo">0</span></div><div class="column-cards" id="cards-todo"></div><button class="add-card-btn" data-status="todo">+ Añadir tarea</button></div>
           <div class="kanban-column" data-status="progress"><div class="column-header"><div class="column-title"><span class="column-dot progress"></span>En Progreso</div><span class="column-count" id="count-progress">0</span></div><div class="column-cards" id="cards-progress"></div><button class="add-card-btn" data-status="progress">+ Añadir tarea</button></div>
@@ -214,12 +258,37 @@
       </form>
     </div>
   </div>
+  <div class="modal-overlay" id="goalModal">
+    <div class="modal">
+      <div class="modal-header"><h2 class="modal-title" id="goalModalTitle">Nuevo Objetivo</h2><button class="modal-close" id="goalModalClose">×</button></div>
+      <form id="goalForm">
+        <div class="form-group"><label class="form-label">Título del Objetivo</label><input type="text" class="form-input" id="goalTitle" required placeholder="¿Qué quieres lograr?"></div>
+        <div class="form-group"><label class="form-label">Descripción</label><textarea class="form-textarea" id="goalDescription" placeholder="¿Por qué es importante?"></textarea></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Fecha límite</label><input type="date" class="form-input" id="goalDueDate"></div>
+          <div class="form-group"><label class="form-label">Categoría</label><select class="form-select" id="goalCategory"><option value="personal">Personal</option><option value="profesional">Profesional</option><option value="salud">Salud</option><option value="aprendizaje">Aprendizaje</option></select></div>
+        </div>
+        <div class="modal-actions"><button type="button" class="btn btn-secondary" id="goalModalCancel">Cancelar</button><button type="submit" class="btn btn-primary">Crear Objetivo</button></div>
+      </form>
+    </div>
+  </div>
   <script>
 const App = {
-  data: { tasks: [], goals: [], context: '', weekCompleted: 0, weekTotal: 7 },
+  data: { tasks: [], goals: [], context: '', weekCompleted: 0, weekTotal: 7, suggestedTasks: [] },
+  currentView: 'dashboard',
   init() { this.load(); this.bindEvents(); this.render(); },
   load() { const saved = localStorage.getItem('alfred-data'); if (saved) { const parsed = JSON.parse(saved); this.data = { ...this.data, ...parsed }; } },
   save() { localStorage.setItem('alfred-data', JSON.stringify(this.data)); },
+  switchView(view) {
+    this.currentView = view;
+    document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-' + view).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    document.querySelector('.nav-item[data-view="' + view + '"]').classList.add('active');
+    const titles = { dashboard: 'Dashboard', goals: 'Objetivos', kanban: 'Kanban' };
+    document.querySelector('.page-title').textContent = titles[view] || 'Dashboard';
+    this.render();
+  },
   bindEvents() {
     document.getElementById('chatToggle').addEventListener('click', () => document.getElementById('chatPanel').classList.add('open'));
     document.getElementById('chatClose').addEventListener('click', () => document.getElementById('chatPanel').classList.remove('open'));
@@ -230,14 +299,44 @@ const App = {
     document.getElementById('modalClose').addEventListener('click', () => this.closeModal());
     document.getElementById('modalCancel').addEventListener('click', () => this.closeModal());
     document.getElementById('taskForm').addEventListener('submit', (e) => { e.preventDefault(); this.saveTask(); });
-    document.querySelectorAll('.nav-item').forEach(item => item.addEventListener('click', (e) => { document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); e.currentTarget.classList.add('active'); }));
+    // Goal modal events
+    document.getElementById('addGoalBtn').addEventListener('click', () => this.openGoalModal());
+    document.getElementById('goalModalClose').addEventListener('click', () => this.closeGoalModal());
+    document.getElementById('goalModalCancel').addEventListener('click', () => this.closeGoalModal());
+    document.getElementById('goalForm').addEventListener('submit', (e) => { e.preventDefault(); this.saveGoal(); });
+    // View navigation
+    document.querySelectorAll('.nav-item').forEach(item => item.addEventListener('click', (e) => { this.switchView(e.currentTarget.dataset.view); }));
     this.setupDragDrop();
   },
   openModal(status) { this.currentStatus = status; document.getElementById('modalTitle').textContent = 'Nueva Tarea'; document.getElementById('taskModal').classList.add('active'); document.getElementById('taskTitle').focus(); },
   closeModal() { document.getElementById('taskModal').classList.remove('active'); document.getElementById('taskForm').reset(); },
+  openGoalModal() { document.getElementById('goalModalTitle').textContent = 'Nuevo Objetivo'; document.getElementById('goalModal').classList.add('active'); document.getElementById('goalTitle').focus(); },
+  closeGoalModal() { document.getElementById('goalModal').classList.remove('active'); document.getElementById('goalForm').reset(); },
   saveTask() {
-    const task = { id: Date.now(), title: document.getElementById('taskTitle').value, description: document.getElementById('taskDescription').value, priority: document.getElementById('taskPriority').value, dueDate: document.getElementById('taskDueDate').value, status: this.currentStatus || 'todo', createdAt: new Date().toISOString() };
+    const task = { id: Date.now(), title: document.getElementById('taskTitle').value, description: document.getElementById('taskDescription').value, priority: document.getElementById('taskPriority').value, dueDate: document.getElementById('taskDueDate').value, status: this.currentStatus || 'todo', createdAt: new Date().toISOString(), goalId: null };
     this.data.tasks.push(task); this.save(); this.closeModal(); this.render();
+  },
+  saveGoal() {
+    const goal = { id: Date.now(), title: document.getElementById('goalTitle').value, description: document.getElementById('goalDescription').value, dueDate: document.getElementById('goalDueDate').value, category: document.getElementById('goalCategory').value, completed: false, createdAt: new Date().toISOString(), tasks: [] };
+    this.data.goals.push(goal);
+    // Generate suggested tasks for this goal
+    const suggested = this.generateSuggestedTasks(goal);
+    this.data.suggestedTasks = [...this.data.suggestedTasks, ...suggested];
+    this.save(); this.closeGoalModal(); this.switchView('goals');
+  },
+  generateSuggestedTasks(goal) {
+    const templates = [
+      { title: 'Investigar sobre ' + goal.title, desc: 'Recopila información relevante', prio: 'high' },
+      { title: 'Crear plan de acción para ' + goal.title, desc: 'Define los pasos a seguir', prio: 'high' },
+      { title: 'Primera acción: ', desc: 'El primer paso concreto', prio: 'medium' },
+      { title: 'Revisar progreso de ' + goal.title, desc: 'Evalúa avances', prio: 'low' }
+    ];
+    return templates.map(t => ({ ...t, id: Date.now() + Math.random(), goalId: goal.id, status: 'todo', dueDate: '', createdAt: new Date().toISOString() }));
+  },
+  deleteGoal(id) { if (confirm('¿Eliminar este objetivo?')) { this.data.goals = this.data.goals.filter(g => g.id !== id); this.data.tasks = this.data.tasks.filter(t => t.goalId !== id); this.data.suggestedTasks = this.data.suggestedTasks.filter(t => t.goalId !== id); this.save(); this.render(); } },
+  addSuggestedToTask(taskId) {
+    const suggested = this.data.suggestedTasks.find(t => t.id === taskId);
+    if (suggested) { const task = { ...suggested, status: 'todo', goalId: suggested.goalId }; this.data.tasks.push(task); this.data.suggestedTasks = this.data.suggestedTasks.filter(t => t.id !== taskId); this.save(); this.render(); }
   },
   deleteTask(id) { this.data.tasks = this.data.tasks.filter(t => t.id !== id); this.save(); this.render(); },
   sendMessage() {
@@ -247,6 +346,7 @@ const App = {
     this.addMessage(text, 'user');
     input.value = '';
     if (text.startsWith('/context ')) { this.data.context = text.replace('/context ', ''); document.getElementById('chatContextText').textContent = this.data.context; this.save(); this.addMessage('Contexto actualizado. Ahora tengo una mejor comprensión de tu situación. ¿En qué puedo ayudarte a avanzar?', 'alfred'); }
+    else if (text.startsWith('/objetivo')) { this.addMessage('Vamos a crear un nuevo objetivo. ¿Cuál es tu meta principal?', 'alfred'); setTimeout(() => this.openGoalModal(), 500); }
     else { document.getElementById('typingIndicator').classList.add('active'); setTimeout(() => { document.getElementById('typingIndicator').classList.remove('active'); this.addMessage(this.getAlfredResponse(text), 'alfred'); }, 1500); }
   },
   addMessage(text, sender) { const div = document.createElement('div'); div.className = 'message ' + sender; div.textContent = text; document.getElementById('chatMessages').appendChild(div); document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight; },
@@ -258,7 +358,7 @@ const App = {
     const progress = this.data.tasks.filter(t => t.status === 'progress').length;
     const responses = [
       'El éxito no viene de esperar inspiración. Viene de levantarte y hacer el trabajo cuando no quieres. ¿Qué tienes pendiente?',
-      'Steve Jobs dijo: "La gente que está lo suficientemente loca como para pensar que pueden cambiar el mundo, son los que lo hacen." ¿Estás listo para.action?',
+      'Steve Jobs dijo: "La gente que está lo suficientemente loca como para pensar que pueden cambiar el mundo, son los que lo hacen." ¿Estás listo para action?',
       'Tienes ' + tasks.length + ' tareas pendientes. No necesitas más planificación. Necesitas ejecución. ¿Cuál es la siguiente?',
       done > 0 ? 'Bien, has completado ' + done + ' tareas. Pero el rastro no sirve de nada si no sigues adelante. ¿Qué sigue?' : 'Aún no has completado nada. El primer paso es siempre el más difícil. Empieza.',
       progress > 0 ? 'Tienes ' + progress + ' tareas en progreso. ¿Por qué no las terminas antes de empezar algo nuevo?' : '¿Por qué tienes tareas en "en progreso" sin terminar? El multitasking es una ilusión.',
@@ -288,7 +388,23 @@ const App = {
     document.getElementById('statTasks').textContent = this.data.tasks.length;
     document.getElementById('statProgress').textContent = counts.progress;
     document.getElementById('statDone').textContent = counts.done;
+    this.renderGoals();
+    this.renderSuggestedTasks();
     this.updateProgressRings();
+  },
+  renderGoals() {
+    const grid = document.getElementById('goalsGrid');
+    grid.innerHTML = '';
+    if (this.data.goals.length === 0) { grid.innerHTML = '<div class="empty-state"><div class="empty-icon">🎯</div><p>No hay objetivos yet. ¡Crea uno!</p></div>'; return; }
+    this.data.goals.forEach(goal => { const goalTasks = this.data.tasks.filter(t => t.goalId === goal.id); const completedTasks = goalTasks.filter(t => t.status === 'done').length; const progress = goalTasks.length > 0 ? Math.round((completedTasks / goalTasks.length) * 100) : 0; const div = document.createElement('div'); div.className = 'goal-card'; div.innerHTML = '<div class="goal-header"><span class="goal-title">' + goal.title + '</span><div class="goal-actions"><button class="goal-action-btn" onclick="App.editGoal(' + goal.id + ')">✏️</button><button class="goal-action-btn delete" onclick="App.deleteGoal(' + goal.id + ')">🗑️</button></div></div>' + (goal.description ? '<div class="goal-description">' + goal.description + '</div>' : '') + '<div class="goal-meta"><span>📅 ' + (goal.dueDate || 'Sin fecha') + '</span><span>🏷️ ' + goal.category + '</span></div><div class="goal-progress-bar"><div class="goal-progress-fill" style="width:' + progress + '%"></div></div><div class="goal-progress-text">' + completedTasks + '/' + goalTasks.length + ' tareas completadas</div>'; grid.appendChild(div); });
+  },
+  renderSuggestedTasks() {
+    const section = document.getElementById('suggestedSection');
+    const list = document.getElementById('suggestedList');
+    if (this.data.suggestedTasks.length === 0) { section.style.display = 'none'; return; }
+    section.style.display = 'block';
+    list.innerHTML = '';
+    this.data.suggestedTasks.forEach(task => { const div = document.createElement('div'); div.className = 'suggested-task'; div.innerHTML = '<button class="suggested-task-btn" onclick="App.addSuggestedToTask(' + task.id + ')">➕</button><div><strong>' + task.title + '</strong><br><small>' + task.desc + '</small></div>'; list.appendChild(div); });
   },
   createCard(task) { const div = document.createElement('div'); div.className = 'kanban-card'; div.draggable = true; div.dataset.id = task.id; div.innerHTML = '<div class="card-header"><span class="card-title">' + task.title + '</span><span class="card-priority ' + task.priority + '"></span></div>' + (task.description ? '<div class="card-description">' + task.description + '</div>' : '') + '<div class="card-meta"><span>' + (task.dueDate || 'Sin fecha') + '</span><button class="card-delete" onclick="App.deleteTask(' + task.id + ')">×</button></div>'; return div; },
   updateProgressRings() {
