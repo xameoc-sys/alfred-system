@@ -3,221 +3,310 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Alfred System</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+  <title>Alfred System | Personal Command Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#fff;--bg2:#f8f9fa;--bg3:#e9ecef;--glass:rgba(0,0,0,0.03);--gbor:rgba(0,0,0,0.08);--pt:#495057;--gold:#d4af37;--copper:#b87333;--ice:#6c757d;--txt:#1a1a2e;--txt2:#6c757d;--txt3:#adb5bd;--sh:0 4px 16px rgba(0,0,0,0.1)}
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:'Outfit',sans-serif;background:#f5f5f5;color:var(--txt);min-height:100vh}
-    .app{display:flex}
-    .sidebar{width:280px;background:var(--bg2);border-right:1px solid var(--gbor);padding:24px;position:fixed;height:100vh;display:flex;flex-direction:column}
-    .logo{display:flex;align-items:center;gap:12px;margin-bottom:48px}
-    .logo-icon{width:48px;height:48px;background:linear-gradient(135deg,var(--pt),var(--gold));border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:700;font-size:24px;color:#fff}
-    .logo-text{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:600}
-    .nav-label{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--txt3);margin-bottom:12px;padding-left:12px}
-    .nav-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:10px;color:var(--txt2);cursor:pointer;margin-bottom:4px;border:1px solid transparent}
-    .nav-item:hover{background:var(--glass);color:var(--txt)}
-    .nav-item.active{background:var(--glass);color:var(--pt);border-color:var(--pt);font-weight:500}
-    .nav-section{margin-bottom:32px}
-    .quick-add{background:linear-gradient(135deg,var(--gold),#c9a227);color:#fff;border:none;padding:16px;border-radius:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:auto}
-    .sidebar-footer{margin-top:24px;padding-top:24px;border-top:1px solid var(--gbor)}
-    .user-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--ice),var(--pt));display:flex;align-items:center;justify-content:center;font-weight:600;color:#fff}
-    .user-profile{display:flex;align-items:center;gap:12px}
-    .user-name{font-weight:500}
-    .user-role{font-size:0.75rem;color:var(--txt3)}
-    .main{flex:1;margin-left:280px;padding:32px 40px}
-    .view{display:none}
-    .view.active{display:block}
-    .page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:40px}
-    .page-title{font-family:'Playfair Display',serif;font-size:2rem;font-weight:600}
-    .page-subtitle{color:var(--txt2);font-size:0.93rem;margin-top:4px}
-    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-bottom:40px}
-    .stat{background:var(--bg2);border:1px solid var(--gbor);border-radius:16px;padding:24px}
-    .stat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
-    .stat-icon.gold{background:rgba(212,175,55,0.15)}
-    .stat-value{font-size:2rem;font-weight:700}
-    .stat-label{font-size:0.81rem;color:var(--txt2)}
-    .section-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:600;margin-bottom:24px}
-    .rings{display:flex;gap:40px;justify-content:center;margin-bottom:48px}
-    .ring-con{display:flex;flex-direction:column;align-items:center;gap:16px}
-    .ring{position:relative;width:120px;height:120px}
-    .ring svg{transform:rotate(-90deg)}
-    .ring circle{fill:none;stroke-width:8;stroke-linecap:round}
-    .ring .bg{stroke:var(--bg3)}
-    .ring .prog{stroke:var(--gold);stroke-dasharray:314;stroke-dashoffset:314;transition:stroke-dashoffset 0.8s}
-    .ring-val{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:1.5rem;font-weight:700}
-    .ring-label{font-size:0.87rem;color:var(--txt2);text-align:center}
-    .kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
-    .kan-col{background:var(--bg2);border:1px solid var(--gbor);border-radius:16px;padding:20px;min-height:400px;display:flex;flex-direction:column}
-    .col-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--gbor)}
-    .col-title{display:flex;align-items:center;gap:10px;font-weight:600}
-    .col-dot{width:10px;height:10px;border-radius:50%}
-    .col-dot.t{background:var(--txt3)}.col-dot.p{background:#3d5a80}.col-dot.d{background:var(--gold)}.col-dot.a{background:var(--txt3)}
-    .col-count{background:var(--bg3);padding:4px 10px;border-radius:20px;font-size:0.75rem;color:var(--txt2)}
-    .col-cards{flex:1;display:flex;flex-direction:column;gap:12px}
-    .card{background:#fff;border:1px solid var(--gbor);border-radius:12px;padding:16px;cursor:grab}
-    .card:hover{transform:scale(1.02);box-shadow:var(--sh)}
-    .card-head{display:flex;justify-content:space-between}
-    .card-title{font-weight:500}
-    .card-prio{width:8px;height:8px;border-radius:50%;margin-top:6px}
-    .card-prio.h{background:var(--copper)}.card-prio.m{background:var(--gold)}.card-prio.l{background:var(--ice)}
-    .card-desc{font-size:0.81rem;color:var(--txt2);margin:8px 0}
-    .card-meta{display:flex;justify-content:space-between;font-size:0.75rem;color:var(--txt3)}
-    .add-btn{width:100%;padding:12px;background:0 0;border:1px dashed var(--gbor);border-radius:12px;color:var(--txt3);cursor:pointer;margin-top:12px}
-    .add-btn:hover{border-color:var(--pt);color:var(--pt)}
-    .del{background:0 0;border:none;color:var(--txt3);cursor:pointer;opacity:0}
-    .card:hover .del{opacity:1}
-    .goals{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
-    .goal{background:var(--bg2);border:1px solid var(--gbor);border-radius:16px;padding:24px}
-    .goal-head{display:flex;justify-content:space-between}
-    .goal-title{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:600}
-    .goal-bar{height:8px;background:var(--bg3);border-radius:4px;margin:16px 0}
-    .goal-fill{height:100%;background:linear-gradient(90deg,var(--gold),#c9a227);border-radius:4px;transition:width 0.5s}
-    .goal-meta{display:flex;justify-content:space-between;font-size:0.81rem;color:var(--txt2)}
-    .new-goal{background:linear-gradient(135deg,var(--glass),var(--bg2));border:2px dashed var(--gbor);border-radius:16px;padding:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:200px;cursor:pointer;text-align:center}
-    .new-goal:hover{border-color:var(--gold)}
-    .new-icon{font-size:48px;opacity:0.5;margin-bottom:16px}
-    .chat-toggle{position:fixed;right:24px;bottom:24px;width:60px;height:60px;background:linear-gradient(135deg,var(--pt),var(--gold));border:none;border-radius:50%;cursor:pointer;font-size:24px;box-shadow:var(--sh);z-index:200}
-    .chat-panel{position:fixed;right:-400px;top:0;width:400px;height:100vh;background:var(--bg2);border-left:1px solid var(--gbor);z-index:150;display:flex;flex-direction:column;transition:right 0.4s}
-    .chat-panel.open{right:0}
-    .chat-head{padding:24px;border-bottom:1px solid var(--gbor);display:flex;justify-content:space-between;align-items:center}
-    .chat-title{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:600}
-    .chat-close{background:0 0;border:none;color:var(--txt2);font-size:24px;cursor:pointer}
-    .chat-ctx{padding:12px 24px;background:var(--bg3);font-size:0.75rem;color:var(--txt2);border-bottom:1px solid var(--gbor)}
-    .chat-ctx lbl{color:var(--gold);font-weight:500}
-    .chat-msgs{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:16px}
-    .msg{max-width:85%;padding:12px 16px;border-radius:16px;font-size:0.93rem}
-    .msg.alf{background:#fff;border:1px solid var(--gbor);align-self:flex-start;border-bottom-left-radius:4px}
-    .msg.usr{background:linear-gradient(135deg,var(--pt),#6c757d);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
-    .chat-inp-area{padding:24px;border-top:1px solid var(--gbor)}
-    .chat-inp-wrap{display:flex;gap:12px}
-    .chat-inp{flex:1;background:#fff;border:1px solid var(--gbor);border-radius:12px;padding:12px 16px;font-family:'Outfit',sans;resize:none}
-    .chat-send{width:48px;height:48px;background:linear-gradient(135deg,var(--gold),#c9a227);border:none;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-    .typing{display:none;padding:12px 16px;background:#fff;border-radius:16px;border-bottom-left-radius:4px;align-self:flex-start}
-    .typing.on{display:flex;gap:4px}
-    .typ-dot{width:8px;height:8px;background:var(--txt3);border-radius:50%;animation:tb 1.4s infinite}
-    @keyframes tb{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-8px)}}
-    .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);z-index:300;display:none;align-items:center;justify-content:center}
-    .modal.on{display:flex}
-    .modal-box{background:var(--bg2);border-radius:20px;padding:32px;width:90%;max-width:500px}
-    .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
-    .modal-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:600}
-    .modal-close{background:0 0;border:none;color:var(--txt2);font-size:24px;cursor:pointer}
-    .form-group{margin-bottom:20px}
-    .form-label{display:block;font-size:0.81rem;color:var(--txt2);margin-bottom:8px;font-weight:500}
-    .form-input,.form-textarea{width:100%;background:#fff;border:1px solid var(--gbor);border-radius:10px;padding:12px 16px;font-family:'Outfit',sans}
-    .form-textarea{min-height:100px;resize:vertical}
-    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    .modal-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:24px}
-    .btn{padding:12px 24px;border-radius:10px;font-weight:500;cursor:pointer}
-    .btn-sec{background:0 0;border:1px solid var(--gbor);color:var(--txt2)}
-    .btn-pri{background:linear-gradient(135deg,var(--gold),#c9a227);border:none;color:#fff}
-    .rec-sec{margin-top:24px;padding:20px;background:linear-gradient(135deg,rgba(212,175,55,0.1),rgba(212,175,55,0.05));border-radius:16px;border:1px solid rgba(212,175,55,0.2)}
-    .rec-title{font-weight:600;color:var(--gold);margin-bottom:16px}
-    .rec-task{display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border-radius:10px;margin-bottom:8px}
-    .rec-src{font-size:0.75rem;color:var(--gold);font-weight:500}
-    .rec-title-txt{flex:1}
-    .btn-add{padding:6px 12px;background:var(--gold);color:#fff;border:none;border-radius:6px;font-size:0.75rem;cursor:pointer}
-    @media(max-width:1200px){.stats,.kanban{grid-template-columns:repeat(2,1fr)}.goals{grid-template-columns:1fr}}
-    @media(max-width:768px){.sidebar{transform:translateX(-100%)}.main{margin-left:0;padding:20px}.stats,.kanban{grid-template-columns:1fr}.chat-panel{width:100%;right:-100%}}
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --bg-primary: #ffffff; --bg-secondary: #f8f9fa; --bg-tertiary: #e9ecef; --glass-bg: rgba(0,0,0,0.03); --glass-border: rgba(0,0,0,0.08); --accent-platinum: #c0c0c8; --accent-gold: #d4af37; --accent-copper: #b87333; --accent-ice: #a8d8ea; --text-primary: #1a1a2e; --text-secondary: #6c757d; --text-tertiary: #adb5bd; --kanban-progress: #3d5a80; --shadow-medium: 0 4px 16px rgba(0,0,0,0.1); --shadow-elevated: 0 8px 32px rgba(0,0,0,0.15); --glow-gold: 0 4px 20px rgba(212,175,55,0.15); }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body { font-family: 'Outfit', sans-serif; background: #f5f5f5; color: var(--text-primary); min-height: 100vh; overflow-x: hidden; line-height: 1.6; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+    ::-webkit-scrollbar-thumb { background: var(--text-tertiary); border-radius: 3px; }
+    .app-container { display: flex; min-height: 100vh; }
+    .sidebar { width: 280px; background: var(--bg-secondary); border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; padding: 24px; position: fixed; height: 100vh; z-index: 100; animation: slideInLeft 0.6s ease-out; }
+    @keyframes slideInLeft { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .logo { display: flex; align-items: center; gap: 12px; margin-bottom: 48px; }
+    .logo-icon { width: 48px; height: 48px; background: linear-gradient(135deg, var(--accent-platinum), var(--accent-gold)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-weight: 700; font-size: 24px; color: var(--bg-primary); box-shadow: var(--glow-gold); }
+    .logo-text { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 600; letter-spacing: 0.05em; }
+    .nav-section { margin-bottom: 32px; }
+    .nav-label { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--text-tertiary); margin-bottom: 12px; padding-left: 12px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; color: var(--text-secondary); cursor: pointer; transition: all 0.2s ease; margin-bottom: 4px; border: 1px solid transparent; }
+    .nav-item:hover { background: var(--glass-bg); color: var(--text-primary); border-color: var(--glass-border); }
+    .nav-item.active { background: var(--glass-bg); color: var(--accent-platinum); border-color: var(--accent-platinum); box-shadow: 0 0 20px rgba(192,192,200,0.1); }
+    .nav-icon { width: 20px; height: 20px; opacity: 0.8; }
+    .quick-add { background: linear-gradient(135deg, var(--accent-gold), #c9a227); color: var(--bg-primary); border: none; padding: 16px 24px; border-radius: 12px; font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 0.9375rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s ease; box-shadow: var(--glow-gold); margin-top: auto; }
+    .quick-add:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(212,175,55,0.4); }
+    .sidebar-footer { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--glass-border); }
+    .user-profile { display: flex; align-items: center; gap: 12px; }
+    .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-ice), var(--accent-platinum)); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; color: var(--bg-primary); }
+    .user-name { font-weight: 500; font-size: 0.9375rem; }
+    .user-role { font-size: 0.75rem; color: var(--text-tertiary); }
+    .main-content { flex: 1; margin-left: 280px; padding: 32px 40px; min-height: 100vh; animation: fadeIn 0.6s ease-out 0.2s both; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+    .page-title { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 600; }
+    .page-subtitle { color: var(--text-secondary); font-size: 0.9375rem; margin-top: 4px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+    .stat-card { background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: 16px; padding: 24px; transition: all 0.3s ease; animation: slideUp 0.6s ease-out both; }
+    .stat-card:nth-child(1) { animation-delay: 0.3s; }
+    .stat-card:nth-child(2) { animation-delay: 0.4s; }
+    .stat-card:nth-child(3) { animation-delay: 0.5s; }
+    .stat-card:nth-child(4) { animation-delay: 0.6s; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    .stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-medium); border-color: var(--accent-platinum); }
+    .stat-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; font-size: 20px; }
+    .stat-icon.gold { background: rgba(212,175,55,0.15); }
+    .stat-icon.platinum { background: rgba(192,192,200,0.15); }
+    .stat-icon.ice { background: rgba(168,216,234,0.15); }
+    .stat-icon.copper { background: rgba(184,115,51,0.15); }
+    .stat-value { font-size: 2rem; font-weight: 700; margin-bottom: 4px; }
+    .stat-label { font-size: 0.8125rem; color: var(--text-secondary); }
+    .progress-section { margin-bottom: 48px; }
+    .section-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 600; margin-bottom: 24px; }
+    .progress-rings { display: flex; gap: 40px; justify-content: center; }
+    .progress-ring-container { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    .progress-ring { position: relative; width: 120px; height: 120px; }
+    .progress-ring svg { transform: rotate(-90deg); width: 120px; height: 120px; }
+    .progress-ring circle { fill: none; stroke-width: 8; stroke-linecap: round; }
+    .progress-ring .bg { stroke: var(--bg-tertiary); }
+    .progress-ring .progress { stroke: var(--accent-gold); stroke-dasharray: 314; stroke-dashoffset: 314; transition: stroke-dashoffset 0.8s ease-in-out; filter: drop-shadow(0 0 8px rgba(212,175,55,0.5)); }
+    .progress-ring-value { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.5rem; font-weight: 700; }
+    .progress-ring-label { font-size: 0.875rem; color: var(--text-secondary); text-align: center; }
+    .kanban-section { margin-bottom: 48px; }
+    .kanban-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+    .kanban-column { background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: 16px; padding: 20px; min-height: 400px; display: flex; flex-direction: column; }
+    .column-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--glass-border); }
+    .column-title { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 0.9375rem; }
+    .column-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .column-dot.todo { background: var(--text-tertiary); }
+    .column-dot.progress { background: var(--kanban-progress); box-shadow: 0 0 10px var(--kanban-progress); }
+    .column-dot.done { background: var(--accent-gold); box-shadow: 0 0 10px var(--accent-gold); }
+    .column-dot.archive { background: var(--text-tertiary); }
+    .column-count { background: var(--bg-tertiary); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; color: var(--text-secondary); }
+    .column-cards { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+    .kanban-card { background: var(--bg-tertiary); border: 1px solid var(--glass-border); border-radius: 12px; padding: 16px; cursor: grab; transition: all 0.2s ease; }
+    .kanban-card:hover { transform: scale(1.02); box-shadow: var(--shadow-medium); border-color: var(--accent-platinum); }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .card-title { font-weight: 500; font-size: 0.9375rem; line-height: 1.4; }
+    .card-priority { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+    .card-priority.high { background: var(--accent-copper); box-shadow: 0 0 8px var(--accent-copper); }
+    .card-priority.medium { background: var(--accent-gold); }
+    .card-priority.low { background: var(--accent-ice); }
+    .card-description { font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-tertiary); }
+    .add-card-btn { width: 100%; padding: 12px; background: transparent; border: 1px dashed var(--glass-border); border-radius: 12px; color: var(--text-tertiary); font-family: 'Outfit', sans-serif; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease; margin-top: 12px; }
+    .add-card-btn:hover { border-color: var(--accent-platinum); color: var(--accent-platinum); background: var(--glass-bg); }
+    .chat-toggle { position: fixed; right: 24px; bottom: 24px; width: 60px; height: 60px; background: linear-gradient(135deg, var(--accent-platinum), var(--accent-gold)); border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.15), var(--glow-gold); transition: all 0.3s ease; z-index: 200; animation: popIn 0.6s ease-out 1s both; }
+    @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .chat-toggle:hover { transform: scale(1.1); }
+    .chat-panel { position: fixed; right: -400px; top: 0; width: 400px; height: 100vh; background: var(--bg-secondary); border-left: 1px solid var(--glass-border); z-index: 150; display: flex; flex-direction: column; transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: -10px 0 40px rgba(0,0,0,0.1); }
+    .chat-panel.open { right: 0; }
+    .chat-header { padding: 24px; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; }
+    .chat-title { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 600; }
+    .chat-close { background: transparent; border: none; color: var(--text-secondary); font-size: 24px; cursor: pointer; padding: 4px; }
+    .chat-context { padding: 12px 24px; background: var(--bg-tertiary); font-size: 0.75rem; color: var(--text-secondary); border-bottom: 1px solid var(--glass-border); }
+    .chat-context-label { color: var(--accent-gold); font-weight: 500; }
+    .chat-messages { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+    .message { max-width: 85%; padding: 12px 16px; border-radius: 16px; font-size: 0.9375rem; line-height: 1.5; animation: messageIn 0.3s ease-out; }
+    @keyframes messageIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .message.alfred { background: var(--bg-tertiary); border: 1px solid var(--glass-border); align-self: flex-start; border-bottom-left-radius: 4px; }
+    .message.user { background: linear-gradient(135deg, var(--accent-platinum), #a8a8b8); color: var(--bg-primary); align-self: flex-end; border-bottom-right-radius: 4px; }
+    .message-time { font-size: 0.6875rem; color: var(--text-tertiary); margin-top: 4px; }
+    .chat-input-area { padding: 24px; border-top: 1px solid var(--glass-border); }
+    .chat-input-wrapper { display: flex; gap: 12px; }
+    .chat-input { flex: 1; background: var(--bg-tertiary); border: 1px solid var(--glass-border); border-radius: 12px; padding: 12px 16px; color: var(--text-primary); font-family: 'Outfit', sans-serif; font-size: 0.9375rem; resize: none; transition: border-color 0.2s; }
+    .chat-input:focus { outline: none; border-color: var(--accent-platinum); }
+    .chat-input::placeholder { color: var(--text-tertiary); }
+    .chat-send { width: 48px; height: 48px; background: linear-gradient(135deg, var(--accent-gold), #c9a227); border: none; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; flex-shrink: 0; }
+    .chat-send:hover { transform: scale(1.05); box-shadow: var(--glow-gold); }
+    .typing-indicator { display: none; padding: 12px 16px; background: var(--bg-tertiary); border-radius: 16px; border-bottom-left-radius: 4px; align-self: flex-start; }
+    .typing-indicator.active { display: flex; gap: 4px; }
+    .typing-dot { width: 8px; height: 8px; background: var(--text-tertiary); border-radius: 50%; animation: typingBounce 1.4s infinite ease-in-out; }
+    .typing-dot:nth-child(1) { animation-delay: 0s; }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typingBounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-8px); } }
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 300; display: none; align-items: center; justify-content: center; animation: fadeIn 0.3s ease; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: 20px; padding: 32px; width: 90%; max-width: 500px; box-shadow: var(--shadow-elevated); animation: modalIn 0.3s ease-out; }
+    @keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .modal-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 600; }
+    .modal-close { background: transparent; border: none; color: var(--text-secondary); font-size: 24px; cursor: pointer; padding: 4px; }
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500; }
+    .form-input, .form-textarea, .form-select { width: 100%; background: var(--bg-tertiary); border: 1px solid var(--glass-border); border-radius: 10px; padding: 12px 16px; color: var(--text-primary); font-family: 'Outfit', sans-serif; font-size: 0.9375rem; transition: border-color 0.2s; }
+    .form-input:focus, .form-textarea:focus, .form-select:focus { outline: none; border-color: var(--accent-platinum); }
+    .form-textarea { min-height: 100px; resize: vertical; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .modal-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; }
+    .btn { padding: 12px 24px; border-radius: 10px; font-family: 'Outfit', sans-serif; font-weight: 500; font-size: 0.9375rem; cursor: pointer; transition: all 0.2s ease; }
+    .btn-secondary { background: transparent; border: 1px solid var(--glass-border); color: var(--text-secondary); }
+    .btn-secondary:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+    .btn-primary { background: linear-gradient(135deg, var(--accent-gold), #c9a227); border: none; color: var(--bg-primary); }
+    .btn-primary:hover { box-shadow: var(--glow-gold); transform: translateY(-2px); }
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--text-tertiary); }
+    .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
+    .card-delete { background: transparent; border: none; color: var(--text-tertiary); cursor: pointer; padding: 4px; opacity: 0; transition: opacity 0.2s; }
+    .kanban-card:hover .card-delete { opacity: 1; }
+    .card-delete:hover { color: var(--accent-copper); }
+    @media (max-width: 1200px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .kanban-board { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .main-content { margin-left: 0; padding: 20px; } .stats-grid { grid-template-columns: 1fr; } .kanban-board { grid-template-columns: 1fr; } .chat-panel { width: 100%; right: -100%; } }
   </style>
 </head>
 <body>
-<div class="app">
-<aside class="sidebar">
-<div class="logo"><div class="logo-icon">A</div><span class="logo-text">Alfred</span></div>
-<nav class="nav-section">
-<div class="nav-label">Principal</div>
-<div class="nav-item active" data-view="dashboard">Dashboard</div>
-<div class="nav-item" data-view="goals">Objetivos</div>
-<div class="nav-item" data-view="kanban">Kanban</div>
-</nav>
-<button class="quick-add" id="quickAddBtn">+ Nueva Tarea</button>
-<div class="sidebar-footer">
-<div class="user-profile"><div class="user-avatar">A</div><div class="user-info"><div class="user-name">Alexander</div><div class="user-role">Fundador</div></div>
-</div>
-</aside>
-<main class="main">
-<section class="view active" id="view-dashboard">
-<header class="page-header"><div><h1 class="page-title">Dashboard</h1><p class="page-subtitle">Tu centro de comando</p></div></header>
-<section class="stats">
-<div class="stat"><div class="stat-icon gold">⭐</div><div class="stat-value" id="statGoals">0</div><div class="stat-label">Objetivos</div></div>
-<div class="stat"><div class="stat-icon">📋</div><div class="stat-value" id="statTasks">0</div><div class="stat-label">Tareas</div></div>
-<div class="stat"><div class="stat-icon">⏳</div><div class="stat-value" id="statProgress">0</div><div class="stat-label">En Progreso</div></div>
-<div class="stat"><div class="stat-icon">✅</div><div class="stat-value" id="statDone">0</div><div class="stat-label">Completadas</div></div>
-</section>
-<section><h2 class="section-title">Progreso</h2>
-<div class="rings">
-<div class="ring-con"><div class="ring"><svg width="120" height="120"><circle class="bg" cx="60" cy="60" r="50"/><circle class="prog" id="ringGoals" cx="60" cy="60" r="50"/></svg><span class="ring-val" id="ringGoalsVal">0%</span></div><span class="ring-label">Objetivos</span></div>
-<div class="ring-con"><div class="ring"><svg width="120" height="120"><circle class="bg" cx="60" cy="60" r="50"/><circle class="prog" id="ringTasks" cx="60" cy="60" r="50"/></svg><span class="ring-val" id="ringTasksVal">0%</span></div><span class="ring-label">Tareas</span></div>
-</div>
-</section>
-<section class="rec-sec" id="recSec" style="display:none;">
-<div class="rec-title">🔥 Tareas de Objetivos</div>
-<div id="recTasks"></div>
-</section>
-</section>
-<section class="view" id="view-goals">
-<header class="page-header"><div><h1 class="page-title">Objetivos</h1><p class="page-subtitle">Define y alcanza tus metas</p></div></header>
-<div class="goals" id="goalsGrid"></div>
-</section>
-<section class="view" id="view-kanban">
-<header class="page-header"><div><h1 class="page-title">Kanban</h1><p class="page-subtitle">Gestiona tus tareas</p></div></header>
-<div class="kanban">
-<div class="kan-col" data-status="todo"><div class="col-header"><div class="col-title"><span class="col-dot t"></span>Por Hacer</div><span class="col-count" id="count-todo">0</span></div><div class="col-cards" id="cards-todo"></div><button class="add-btn" data-status="todo">+ Añadir</button></div>
-<div class="kan-col" data-status="progress"><div class="col-header"><div class="col-title"><span class="col-dot p"></span>En Progreso</div><span class="col-count" id="count-progress">0</span></div><div class="col-cards" id="cards-progress"></div><button class="add-btn" data-status="progress">+ Añadir</button></div>
-<div class="kan-col" data-status="done"><div class="col-header"><div class="col-title"><span class="col-dot d"></span>Hecho</div><span class="col-count" id="count-done">0</span></div><div class="col-cards" id="cards-done"></div><button class="add-btn" data-status="done">+ Añadir</button></div>
-<div class="kan-col" data-status="archive"><div class="col-header"><div class="col-title"><span class="col-dot a"></span>Archivo</div><span class="col-count" id="count-archive">0</span></div><div class="col-cards" id="cards-archive"></div></div>
-</div>
-</section>
-</main>
-</div>
-<button class="chat-toggle" id="chatToggle">🤖</button>
-<div class="chat-panel" id="chatPanel">
-<div class="chat-head"><span class="chat-title">Alfred</span><button class="chat-close" id="chatClose">×</button></div>
-<div class="chat-ctx"><lbl>Contexto:</lbl> <span id="chatCtx">Sin /context</span></div>
-<div class="chat-msgs" id="chatMsgs"><div class="msg alf">Soy Alfred. Escribe "/objetivo" para crear uno conmigo.</div></div>
-<div class="typing" id="typing"><span class="typ-dot"></span><span class="typ-dot"></span><span class="typ-dot"></span></div>
-<div class="chat-inp-area"><div class="chat-inp-wrap"><textarea class="chat-inp" id="chatInp" placeholder="Escribe..." rows="1"></textarea><button class="chat-send" id="chatSend">➤</button></div></div>
-</div>
-<div class="modal" id="taskModal">
-<div class="modal-box"><div class="modal-head"><h2 class="modal-title" id="modalTitle">Nueva Tarea</h2><button class="modal-close" id="modalClose">×</button></div>
-<form id="taskForm">
-<div class="form-group"><label class="form-label">Título</label><input type="text" class="form-input" id="taskTitle" required></div>
-<div class="form-group"><label class="form-label">Descripción</label><textarea class="form-textarea" id="taskDesc"></textarea></div>
-<div class="form-row"><div class="form-group"><label class="form-label">Prioridad</label><select class="form-input" id="taskPrio"><option value="l">Baja</option><option value="m" selected>Media</option><option value="h">Alta</option></select></div><div class="form-group"><label class="form-label">Fecha</label><input type="date" class="form-input" id="taskDue"></div></div>
-<div class="modal-actions"><button type="button" class="btn btn-sec" id="modalCancel">Cancelar</button><button type="submit" class="btn btn-pri">Guardar</button></div>
-</form></div>
-</div>
-<div class="modal" id="goalModal">
-<div class="modal-box"><div class="modal-head"><h2 class="modal-title">Nuevo Objetivo</h2><button class="modal-close" id="goalClose">×</button></div>
-<form id="goalForm">
-<div class="form-group"><label class="form-label">Título</label><input type="text" class="form-input" id="goalTitle" required placeholder="Ej: Lanzar mi SaaS"></div>
-<div class="form-group"><label class="form-label">Descripción</label><textarea class="form-textarea" id="goalDesc" placeholder="¿Qué quieres lograr?"></textarea></div>
-<div class="form-group"><label class="form-label">Fecha límite</label><input type="date" class="form-input" id="goalDue"></div>
-<div class="modal-actions"><button type="button" class="btn btn-sec" id="goalCancel">Cancelar</button><button type="submit" class="btn btn-pri">Crear</button></div>
-</form></div>
-</div>
-<script>
-const App={data:{tasks:[],goals:[],ctx:'',goalMode:0,goal:{}},init(){this.load();this.bind();this.render()},load(){const s=localStorage.getItem('alfred');if(s)this.data={...this.data,...JSON.parse(s)}},save(){localStorage.setItem('alfred',JSON.stringify(this.data))},bind(){
-document.querySelectorAll('.nav-item').forEach(i=>i.onclick=e=>{document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));e.target.classList.add('active');document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+e.target.dataset.view).classList.add('active')});
-document.getElementById('chatToggle').onclick=()=>document.getElementById('chatPanel').classList.add('open');
-document.getElementById('chatClose').onclick=()=>document.getElementById('chatPanel').classList.remove('open');
-document.getElementById('chatSend').onclick=()=>this.send();
-document.getElementById('chatInp').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();this.send()}};
-document.getElementById('quickAddBtn').onclick=()=>this.openModal('todo');
-document.querySelectorAll('.add-btn').forEach(b=>b.onclick=()=>this.openModal(b.dataset.status));
-document.getElementById('modalClose').onclick=()=>this.closeModal();
-document.getElementById('modalCancel').onclick=()=>this.closeModal();
-document.getElementById('taskForm').onsubmit=e=>{e.preventDefault();this.addTask()};
-document.getElementById('goalClose').onclick=()=>document.getElementById('goalModal').classList.remove('on');
-document.getElementById('goalCancel').onclick=()=>document.getElementById('goalModal').classList.remove('on');
-document.getElementById('goalForm').onsubmit=e=>{e.preventDefault();this.addGoal()};
-this.drag()},openModal(s){this.status=s;document.getElementById('modalTitle').textContent='Nueva Tarea';document.getElementById('taskModal').classList.add('on');document.getElementById('taskTitle').focus()},closeModal(){document.getElementById('taskModal').classList.remove('on');document.getElementById('taskForm').reset()},addTask(){const t={id:Date.now(),title:document.getElementById('taskTitle').value,desc:document.getElementById('taskDesc').value,prio:document.getElementById('taskPrio').value,due:document.getElementById('taskDue').value,status:this.status||'todo',goalId:null};this.data.tasks.push(t);this.save();this.closeModal();this.render()},delTask(id){this.data.tasks=this.data.tasks.filter(t=>t.id!==id);this.save();this.render()},send(){const i=document.getElementById('chatInp'),t=i.value.trim();if(!t)return;this.addMsg(t,'usr');i.value='';if(t.startsWith('/ctx ')){this.data.ctx=t.slice(5);document.getElementById('chatCtx').textContent=this.data.ctx;this.save();this.addMsg('Contexto actualizado.','alf')}
-else if(t.startsWith('/objetivo')){this.data.goalMode=1;this.data.goal={};this.addMsg('Perfecto. ¿Cuál es el objetivo principal?','alf')}
-else if(this.data.goalMode>0){this.handleGoal(t)}
-else{document.getElementById('typing').classList.add('on');setTimeout(()=>{document.getElementById('typing').classList.remove('on');this.addMsg(this.resp(t),'alf')},1500)}},handleGoal(t){const s=this.data.goalMode;if(s===1){this.data.goal.title=t;this.data.goalMode=2;this.addMsg('¿Por qué es importante?','alf')}
-else if(s===2){this.data.goal.desc=t;this.data.goalMode=3;this.addMsg('¿Fecha límite? (YYYY-MM-DD)','alf')}
-else if(s===3){this.data.goal.due=t;this.data.goalMode=4;const tasks=this.genTasks(this.data.goal.title);this.data.suggested=tasks;let m='Para "'+this.data.goal.title+'", te sugiero:\\n\\n';tasks.forEach((x,i)=>m+=(i+1)+'. '+x.title+'\\n');m+='\\n¿Agregar? (sí/no)';this.addMsg(m,'alf')}
-else if(s===4){if(t.toLowerCase().includes('sí')||t.toLowerCase().includes('si')||t.toLowerCase().includes('yes')){this.data.suggested.forEach(x=>{this.data.tasks.push({...x,id:Date.now()+Math.random(),status:'todo',goalId:null})});this.addMsg('Tareas agregadas. Ahora crea el objetivo.','alf');document.getElementById('goalModal').classList.add('on');document.getElementById('goalTitle').value=this.data.goal.title;document.getElementById('goalDesc').value=this.data.goal.desc;document.getElementById('goalDue').value=this.data.goal.due}else{this.addMsg('Ok.','alf')}this.data.goalMode=0;this.save();this.render()}},genTasks(g){const l=g.toLowerCase();if(l.includes('saas')||l.includes('producto')||l.includes('lanzar'))return[{title:'Definir propuesta de valor',desc:'¿Qué te hace diferente?',prio:'h'},{title:'Crear landing page',desc:'Página de captura',prio:'h'},{title:'Desarrollar MVP',desc:'Características mínimas',prio:'h'},{title:'Conseguir usuarios',desc:'Validar con reales',prio:'m'},{title:'Configurar pagos',desc:'Stripe u otra',prio:'m'}];if(l.includes('venta')||l.includes('cliente'))return[{title:'Identificar cliente ideal',desc:'Buyer persona',prio:'h'},{title:'Crear lista prospectos',desc:'Base de datos',prio:'h'},{title:'Preparar pitch',desc:'Presentación',prio:'m'}];return[{title:'Definir primer paso',desc:'¿Cuál es la primera acción?',prio:'h'},{title:'Identificar obstáculos',desc:'¿Qué puede frenarte?',prio:'m'}]},resp(t){const r=['El éxito no viene de esperar. Haz.','Tienes '+this.data.tasks.length+' tareas. Ejecuta.','Bien. ¿Qué sigue?','Ejecuta, aprende, ajusta, repite.'][Math.floor(Math.random()*4)];if(t.toLowerCase().includes('ayuda'))return'Dime qué necesitas y te ayudo.';return r},addMsg(t,s){const m=document.createElement('div');m.className='msg '+(s==='alf'?'alf':'usr');m.textContent=t;document.getElementById('chatMsgs').appendChild(m);document.getElementById('chatMsgs').scrollTop=document.getElementById('chatMsgs').scrollHeight},drag(){let d=null;document.querySelectorAll('.kan-col').forEach(c=>{c.ondragover=e=>{e.preventDefault();c.classList.add('hover')};c.ondragleave=()=>c.classList.remove('hover');c.ondrop=e=>{e.preventDefault();c.classList.remove('hover');if(d){const id=parseInt(d.dataset.id),task=this.data.tasks.find(t=>t.id===id);if(task){task.status=c.dataset.status;this.save();this.render()}}}});document.ondragstart=e=>{if(e.target.classList.contains('card')){d=e.target;e.target.style.opacity='0.5'}};document.ondragend=e=>{if(e.target.classList.contains('card')){e.target.style.opacity='1';d=null}}},render(){const c={todo:0,progress:0,done:0,archive:0};document.querySelectorAll('.col-cards').forEach(x=>x.innerHTML='');this.data.tasks.forEach(t=>{c[t.status]++});this.data.tasks.forEach(t=>{const card=this.mkCard(t);document.getElementById('cards-'+t.status).appendChild(card)});Object.keys(c).forEach(s=>document.getElementById('count-'+s).textContent=c[s]);document.getElementById('statGoals').textContent=this.data.goals.length;document.getElementById('statTasks').textContent=this.data.tasks.length;document.getElementById('statProgress').textContent=c.progress;document.getElementById('statDone').textContent=c.done;this.rings();this.goals();this.rec()},mkCard(t){const d=document.createElement('div');d.className='card';d.draggable=true;d.dataset.id=t.id;d.innerHTML='<div class="card-head"><span class="card-title">'+t.title+'</span><span class="card-prio '+t.prio+'"></span></div>'+(t.desc?'<div class="card-desc">'+t.desc+'</div>':'')+'<div class="card-meta"><span>'+(t.due||'Sin fecha')+'</span><button class="del" onclick="App.delTask('+t.id+')">×</button></div>';return d},rings(){const t=this.data.tasks.length||1,d=this.data.tasks.filter(x=>x.status==='done').length,g=this.data.goals.length||1,gd=this.data.goals.filter(x=>x.done).length;document.getElementById('ringGoals').style.strokeDashoffset=314-314*gd/g;document.getElementById('ringTasks').style.strokeDashoffset=314-314*d/t;document.getElementById('ringGoalsVal').textContent=Math.round(gd/g*100)+'%';document.getElementById('ringTasksVal').textContent=Math.round(d/t*100)+'%'},goals(){const g=document.getElementById('goalsGrid');g.innerHTML='';this.data.goals.forEach(goal=>{const gt=this.data.tasks.filter(t=>t.goalId===goal.id),gc=gt.filter(t=>t.status==='done').length,p=gt.length?Math.round(gc/gt.length*100):0;const c=document.createElement('div');c.className='goal';c.innerHTML='<div class="goal-head"><span class="goal-title">'+goal.title+'</span><button class="del" onclick="App.delGoal('+goal.id+')">×</button></div><p style="font-size:0.87rem;color:var(--txt2);margin-top:8px">'+(goal.desc||'')+'</p><div class="goal-bar"><div class="goal-fill" style="width:'+p+'%"></div></div><div class="goal-meta"><span>'+gc+'/'+gt.length+' tareas</span><span>'+p+'%</span></div>';g.appendChild(c)});const n=document.createElement('div');n.className='new-goal';n.innerHTML='<div class="new-icon">+</div><div>Crear objetivo</div>';n.onclick=()=>document.getElementById('goalModal').classList.add('on');g.appendChild(n)},rec(){const s=document.getElementById('recSec'),r=document.getElementById('recTasks');const tasks=this.data.tasks.filter(t=>t.goalId&&t.status==='todo');if(!tasks.length){s.style.display='none';return}s.style.display='block';r.innerHTML='';tasks.slice(0,5).forEach(t=>{const goal=this.data.goals.find(g=>g.id===t.goalId);if(!goal)return; const div=document.createElement("div");div.className="rec-task";div.innerHTML="<div><span class="rec-src">"+goal.title.substring(0,20)+"</span><div class="rec-title-txt">"+t.title+"</div></div><button class="btn-add" onclick=\"App.moveToTodo("+t.id+")\">Agregar</button>";r.appendChild(div)})},moveToTodo(id){const t=this.data.tasks.find(x=>x.id===id);if(t){t.status="todo";this.save();this.render()}},addGoal(){const goal={id:Date.now(),title:document.getElementById("goalTitle").value,desc:document.getElementById("goalDesc").value,due:document.getElementById("goalDue").value,done:false};this.data.goals.push(goal);document.getElementById("goalModal").classList.remove("on");document.getElementById("goalForm").reset();this.addMsg("Objetivo creado. Trabaja en las tareas.","alf");this.save();this.render()},delGoal(id){this.data.goals=this.data.goals.filter(g=>g.id!==id);this.save();this.render()}};document.addEventListener("DOMContentLoaded",()=>App.init());
-</script></body></html>
+  <div class="app-container">
+    <aside class="sidebar">
+      <div class="logo"><div class="logo-icon">A</div><span class="logo-text">Alfred</span></div>
+      <nav class="nav-section">
+        <div class="nav-label">Principal</div>
+        <div class="nav-item active" data-view="dashboard"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</div>
+        <div class="nav-item" data-view="goals"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Objetivos</div>
+        <div class="nav-item" data-view="kanban"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>Kanban</div>
+      </nav>
+      <button class="quick-add" id="quickAddBtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nueva Tarea</button>
+      <div class="sidebar-footer">
+        <div class="user-profile">
+          <div class="user-avatar">A</div>
+          <div class="user-info"><div class="user-name">Alexander</div><div class="user-role">Fundador</div></div>
+        </div>
+      </div>
+    </aside>
+    <main class="main-content">
+      <header class="page-header"><div><h1 class="page-title">Dashboard</h1><p class="page-subtitle">Tu centro de comando personal</p></div></header>
+      <section class="stats-grid">
+        <div class="stat-card"><div class="stat-icon gold"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg></div><div class="stat-value" id="statGoals">0</div><div class="stat-label">Objetivos Activos</div></div>
+        <div class="stat-card"><div class="stat-icon platinum"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c0c0c8" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg></div><div class="stat-value" id="statTasks">0</div><div class="stat-label">Tareas Totales</div></div>
+        <div class="stat-card"><div class="stat-icon ice"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a8d8ea" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg></div><div class="stat-value" id="statProgress">0</div><div class="stat-label">En Progreso</div></div>
+        <div class="stat-card"><div class="stat-icon copper"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b87333" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg></div><div class="stat-value" id="statDone">0</div><div class="stat-label">Completadas</div></div>
+      </section>
+      <section class="progress-section">
+        <h2 class="section-title">Progreso General</h2>
+        <div class="progress-rings">
+          <div class="progress-ring-container"><div class="progress-ring"><svg><circle class="bg" cx="60" cy="60" r="50"/><circle class="progress" id="ringGoals" cx="60" cy="60" r="50"/></svg><span class="progress-ring-value" id="ringGoalsValue">0%</span></div><span class="progress-ring-label">Objetivos<br>Completados</span></div>
+          <div class="progress-ring-container"><div class="progress-ring"><svg><circle class="bg" cx="60" cy="60" r="50"/><circle class="progress" id="ringTasks" cx="60" cy="60" r="50"/></svg><span class="progress-ring-value" id="ringTasksValue">0%</span></div><span class="progress-ring-label">Tareas<br>Completadas</span></div>
+          <div class="progress-ring-container"><div class="progress-ring"><svg><circle class="bg" cx="60" cy="60" r="50"/><circle class="progress" id="ringWeek" cx="60" cy="60" r="50"/></svg><span class="progress-ring-value" id="ringWeekValue">0%</span></div><span class="progress-ring-label">Esta<br>Semana</span></div>
+        </div>
+      </section>
+      <section class="kanban-section">
+        <h2 class="section-title">Kanban</h2>
+        <div class="kanban-board">
+          <div class="kanban-column" data-status="todo"><div class="column-header"><div class="column-title"><span class="column-dot todo"></span>Por Hacer</div><span class="column-count" id="count-todo">0</span></div><div class="column-cards" id="cards-todo"></div><button class="add-card-btn" data-status="todo">+ Añadir tarea</button></div>
+          <div class="kanban-column" data-status="progress"><div class="column-header"><div class="column-title"><span class="column-dot progress"></span>En Progreso</div><span class="column-count" id="count-progress">0</span></div><div class="column-cards" id="cards-progress"></div><button class="add-card-btn" data-status="progress">+ Añadir tarea</button></div>
+          <div class="kanban-column" data-status="done"><div class="column-header"><div class="column-title"><span class="column-dot done"></span>Hecho</div><span class="column-count" id="count-done">0</span></div><div class="column-cards" id="cards-done"></div><button class="add-card-btn" data-status="done">+ Añadir tarea</button></div>
+          <div class="kanban-column" data-status="archive"><div class="column-header"><div class="column-title"><span class="column-dot archive"></span>Archivo</div><span class="column-count" id="count-archive">0</span></div><div class="column-cards" id="cards-archive"></div></div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <button class="chat-toggle" id="chatToggle">🤖</button>
+  <div class="chat-panel" id="chatPanel">
+    <div class="chat-header"><span class="chat-title">Alfred</span><button class="chat-close" id="chatClose">×</button></div>
+    <div class="chat-context"><span class="chat-context-label">Contexto:</span> <span id="chatContextText">Sin contexto definido. Usa /context para darme contexto.</span></div>
+    <div class="chat-messages" id="chatMessages"><div class="message alfred">Soy Alfred. Estoy aquí para impulsarte a trabajar tan duro que sea imposible fracasar. Dame contexto sobre tu proyecto y te ayudaré a dividirlo en pasos accionables. ¿Qué estás construyendo?</div></div>
+    <div class="typing-indicator" id="typingIndicator"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>
+    <div class="chat-input-area"><div class="chat-input-wrapper"><textarea class="chat-input" id="chatInput" placeholder="Escribe tu mensaje..." rows="1"></textarea><button class="chat-send" id="chatSend"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22,2 15,22 11,13 2,9 22,2"/></svg></button></div></div>
+  </div>
+  <div class="modal-overlay" id="taskModal">
+    <div class="modal">
+      <div class="modal-header"><h2 class="modal-title" id="modalTitle">Nueva Tarea</h2><button class="modal-close" id="modalClose">×</button></div>
+      <form id="taskForm">
+        <div class="form-group"><label class="form-label">Título</label><input type="text" class="form-input" id="taskTitle" required placeholder="¿Qué necesitas hacer?"></div>
+        <div class="form-group"><label class="form-label">Descripción</label><textarea class="form-textarea" id="taskDescription" placeholder="Detalles adicionales..."></textarea></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Prioridad</label><select class="form-select" id="taskPriority"><option value="low">Baja</option><option value="medium" selected>Media</option><option value="high">Alta</option></select></div>
+          <div class="form-group"><label class="form-label">Fecha límite</label><input type="date" class="form-input" id="taskDueDate"></div>
+        </div>
+        <div class="modal-actions"><button type="button" class="btn btn-secondary" id="modalCancel">Cancelar</button><button type="submit" class="btn btn-primary">Guardar</button></div>
+      </form>
+    </div>
+  </div>
+  <script>
+const App = {
+  data: { tasks: [], goals: [], context: '', weekCompleted: 0, weekTotal: 7 },
+  init() { this.load(); this.bindEvents(); this.render(); },
+  load() { const saved = localStorage.getItem('alfred-data'); if (saved) { const parsed = JSON.parse(saved); this.data = { ...this.data, ...parsed }; } },
+  save() { localStorage.setItem('alfred-data', JSON.stringify(this.data)); },
+  bindEvents() {
+    document.getElementById('chatToggle').addEventListener('click', () => document.getElementById('chatPanel').classList.add('open'));
+    document.getElementById('chatClose').addEventListener('click', () => document.getElementById('chatPanel').classList.remove('open'));
+    document.getElementById('chatSend').addEventListener('click', () => this.sendMessage());
+    document.getElementById('chatInput').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.sendMessage(); } });
+    document.getElementById('quickAddBtn').addEventListener('click', () => this.openModal('todo'));
+    document.querySelectorAll('.add-card-btn').forEach(btn => btn.addEventListener('click', () => this.openModal(btn.dataset.status)));
+    document.getElementById('modalClose').addEventListener('click', () => this.closeModal());
+    document.getElementById('modalCancel').addEventListener('click', () => this.closeModal());
+    document.getElementById('taskForm').addEventListener('submit', (e) => { e.preventDefault(); this.saveTask(); });
+    document.querySelectorAll('.nav-item').forEach(item => item.addEventListener('click', (e) => { document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); e.currentTarget.classList.add('active'); }));
+    this.setupDragDrop();
+  },
+  openModal(status) { this.currentStatus = status; document.getElementById('modalTitle').textContent = 'Nueva Tarea'; document.getElementById('taskModal').classList.add('active'); document.getElementById('taskTitle').focus(); },
+  closeModal() { document.getElementById('taskModal').classList.remove('active'); document.getElementById('taskForm').reset(); },
+  saveTask() {
+    const task = { id: Date.now(), title: document.getElementById('taskTitle').value, description: document.getElementById('taskDescription').value, priority: document.getElementById('taskPriority').value, dueDate: document.getElementById('taskDueDate').value, status: this.currentStatus || 'todo', createdAt: new Date().toISOString() };
+    this.data.tasks.push(task); this.save(); this.closeModal(); this.render();
+  },
+  deleteTask(id) { this.data.tasks = this.data.tasks.filter(t => t.id !== id); this.save(); this.render(); },
+  sendMessage() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+    this.addMessage(text, 'user');
+    input.value = '';
+    if (text.startsWith('/context ')) { this.data.context = text.replace('/context ', ''); document.getElementById('chatContextText').textContent = this.data.context; this.save(); this.addMessage('Contexto actualizado. Ahora tengo una mejor comprensión de tu situación. ¿En qué puedo ayudarte a avanzar?', 'alfred'); }
+    else { document.getElementById('typingIndicator').classList.add('active'); setTimeout(() => { document.getElementById('typingIndicator').classList.remove('active'); this.addMessage(this.getAlfredResponse(text), 'alfred'); }, 1500); }
+  },
+  addMessage(text, sender) { const div = document.createElement('div'); div.className = 'message ' + sender; div.textContent = text; document.getElementById('chatMessages').appendChild(div); document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight; },
+  getAlfredResponse(input) {
+    const ctx = this.data.context.toLowerCase();
+    const tasks = this.data.tasks.filter(t => t.status !== 'archive');
+    const done = this.data.tasks.filter(t => t.status === 'done').length;
+    const total = this.data.tasks.length;
+    const progress = this.data.tasks.filter(t => t.status === 'progress').length;
+    const responses = [
+      'El éxito no viene de esperar inspiración. Viene de levantarte y hacer el trabajo cuando no quieres. ¿Qué tienes pendiente?',
+      'Steve Jobs dijo: "La gente que está lo suficientemente loca como para pensar que pueden cambiar el mundo, son los que lo hacen." ¿Estás listo para.action?',
+      'Tienes ' + tasks.length + ' tareas pendientes. No necesitas más planificación. Necesitas ejecución. ¿Cuál es la siguiente?',
+      done > 0 ? 'Bien, has completado ' + done + ' tareas. Pero el rastro no sirve de nada si no sigues adelante. ¿Qué sigue?' : 'Aún no has completado nada. El primer paso es siempre el más difícil. Empieza.',
+      progress > 0 ? 'Tienes ' + progress + ' tareas en progreso. ¿Por qué no las terminas antes de empezar algo nuevo?' : '¿Por qué tienes tareas en "en progreso" sin terminar? El multitasking es una ilusión.',
+      ctx.includes('fundador') || ctx.includes('empresa') || ctx.includes('startup') ? 'Como fundador, tu trabajo no es hacer todo. Es asegurarte de que las cosas importantes se hagan. ¿Qué está frenando tu empresa ahora?' : 'Sin importar qué estés construyendo, el principio es el mismo: ejecuta, aprende, ajusta, repite.'
+    ];
+    if (input.toLowerCase().includes('ayuda') || input.toLowerCase().includes('help')) { return 'Dime específicamente qué necesitas hacer y te ayudo a dividirlo en pasos pequeños y accionables. ¿Cuál es tu siguiente tarea?'; }
+    if (input.toLowerCase().includes('no sé') || input.toLowerCase().includes('no se') || input.toLowerCase().includes('bloqueado')) { return 'El bloqueo usually es falta de información o exceso de pensamiento. Empieza con cualquier cosa. Lo perfeito es el enemigo de lo bueno.'; }
+    return responses[Math.floor(Math.random() * responses.length)];
+  },
+  setupDragDrop() {
+    let draggedItem = null;
+    document.querySelectorAll('.kanban-column').forEach(col => {
+      col.addEventListener('dragover', (e) => { e.preventDefault(); col.classList.add('drag-over'); });
+      col.addEventListener('dragleave', () => col.classList.remove('drag-over'));
+      col.addEventListener('drop', (e) => { e.preventDefault(); col.classList.remove('drag-over'); if (draggedItem) { const newStatus = col.dataset.status; const taskId = parseInt(draggedItem.dataset.id); const task = this.data.tasks.find(t => t.id === taskId); if (task) { task.status = newStatus; this.save(); this.render(); } } });
+    });
+    document.addEventListener('dragstart', (e) => { if (e.target.classList.contains('kanban-card')) { draggedItem = e.target; e.target.style.opacity = '0.5'; } });
+    document.addEventListener('dragend', (e) => { if (e.target.classList.contains('kanban-card')) { e.target.style.opacity = '1'; draggedItem = null; } });
+  },
+  render() {
+    const counts = { todo: 0, progress: 0, done: 0, archive: 0 };
+    this.data.tasks.forEach(task => { counts[task.status]++; document.getElementById('cards-' + task.status).innerHTML = ''; });
+    this.data.tasks.forEach(task => { const card = this.createCard(task); document.getElementById('cards-' + task.status).appendChild(card); });
+    Object.keys(counts).forEach(status => { document.getElementById('count-' + status).textContent = counts[status]; });
+    document.getElementById('statGoals').textContent = this.data.goals.length;
+    document.getElementById('statTasks').textContent = this.data.tasks.length;
+    document.getElementById('statProgress').textContent = counts.progress;
+    document.getElementById('statDone').textContent = counts.done;
+    this.updateProgressRings();
+  },
+  createCard(task) { const div = document.createElement('div'); div.className = 'kanban-card'; div.draggable = true; div.dataset.id = task.id; div.innerHTML = '<div class="card-header"><span class="card-title">' + task.title + '</span><span class="card-priority ' + task.priority + '"></span></div>' + (task.description ? '<div class="card-description">' + task.description + '</div>' : '') + '<div class="card-meta"><span>' + (task.dueDate || 'Sin fecha') + '</span><button class="card-delete" onclick="App.deleteTask(' + task.id + ')">×</button></div>'; return div; },
+  updateProgressRings() {
+    const total = this.data.tasks.length || 1;
+    const done = this.data.tasks.filter(t => t.status === 'done').length;
+    const goalsDone = this.data.goals.filter(g => g.completed).length;
+    const goalsTotal = this.data.goals.length || 1;
+    const weekPct = Math.round((this.data.weekCompleted / this.data.weekTotal) * 100);
+    const taskPct = Math.round((done / total) * 100);
+    const goalPct = Math.round((goalsDone / goalsTotal) * 100);
+    document.getElementById('ringGoals').style.strokeDashoffset = 314 - (314 * goalPct / 100);
+    document.getElementById('ringTasks').style.strokeDashoffset = 314 - (314 * taskPct / 100);
+    document.getElementById('ringWeek').style.strokeDashoffset = 314 - (314 * weekPct / 100);
+    document.getElementById('ringGoalsValue').textContent = goalPct + '%';
+    document.getElementById('ringTasksValue').textContent = taskPct + '%';
+    document.getElementById('ringWeekValue').textContent = weekPct + '%';
+  }
+};
+document.addEventListener('DOMContentLoaded', () => App.init());
+  </script>
+</body>
+</html>
