@@ -218,6 +218,7 @@
     .calendar-task.high { background: var(--priority-high); }
     .calendar-task.medium { background: var(--priority-medium); color: #000; }
     .calendar-task.low { background: var(--priority-low); }
+    .calendar-task.unassigned { border: 2px solid var(--text-tertiary); }
     /* Pendientes styles */
     .pendientes-group { margin-bottom: 24px; }
     .pendientes-group-title { font-family: 'Playfair Display', serif; font-size: 1.125rem; font-weight: 600; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--glass-border); }
@@ -578,11 +579,17 @@ const App = {
       const dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
       const isToday = today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
       const tasksForDay = this.data.tasks.filter(t => t.dueDate === dateStr);
+      const groupTasksForDay = this.data.groupTasks.filter(t => t.dueDate === dateStr);
       let tasksHtml = '';
       tasksForDay.slice(0, 3).forEach(task => {
         tasksHtml += '<div class="calendar-task ' + task.priority + '" title="' + task.title + '" onclick="App.openTaskDetail(' + task.id + ')">' + task.title + '</div>';
       });
-      if (tasksForDay.length > 3) tasksHtml += '<div class="calendar-task" style="background:var(--text-secondary)">+' + (tasksForDay.length - 3) + '</div>';
+      groupTasksForDay.slice(0, 3).forEach(task => {
+        const assignedClass = task.assignee ? '' : ' unassigned';
+        tasksHtml += '<div class="calendar-task group-task ' + task.priority + assignedClass + '" title="' + task.title + '" onclick="App.openGroupTaskDetail(' + task.id + ')">' + task.title + '</div>';
+      });
+      const totalTasks = tasksForDay.length + groupTasksForDay.length;
+      if (totalTasks > 3) tasksHtml += '<div class="calendar-task" style="background:var(--text-secondary)">+' + (totalTasks - 3) + '</div>';
       html += '<div class="calendar-day' + (isToday ? ' today' : '') + '"><div class="calendar-day-number">' + day + '</div><div class="calendar-day-tasks">' + tasksHtml + '</div></div>';
     }
     const remainingCells = 42 - (firstDay + daysInMonth);
@@ -625,7 +632,7 @@ const App = {
       let membersHtml = '';
       if (group.members && group.members.length > 0) { group.members.forEach((m, i) => { membersHtml += '<span class="group-member">' + m + '</span>'; }); } else { membersHtml = '<span style="color:var(--text-tertiary)">Sin miembros</span>'; }
       let tasksHtml = '';
-      groupTasks.forEach(task => { tasksHtml += '<div class="kanban-card" onclick="App.openGroupTaskDetail(' + task.id + ')" style="margin-bottom:8px;cursor:pointer;"><div class="card-header"><span class="card-title">' + task.title + '</span><span class="card-priority ' + task.priority + '"></span></div></div>'; });
+      groupTasks.forEach(task => { const assignedClass = task.assignee ? '' : 'unassigned'; tasksHtml += '<div class="kanban-card" onclick="App.openGroupTaskDetail(' + task.id + ')" style="margin-bottom:8px;cursor:pointer;"><div class="card-header"><span class="card-title">' + task.title + '</span><span class="card-priority ' + task.priority + '"></span>' + (!task.assignee ? '<span class="card-priority" style="background:var(--text-tertiary)" title="Sin asignar"></span>' : '') + '</div></div>'; });
       const div = document.createElement('div');
       div.className = 'group-card';
       div.innerHTML = '<div class="group-header"><span class="group-title">' + group.name + '</span><div class="goal-actions"><button class="goal-action-btn" onclick="App.openGroupTaskModal(' + group.id + ')">➕</button><button class="goal-action-btn" onclick="App.editGroup(' + group.id + ')">✏️</button><button class="goal-action-btn delete" onclick="App.deleteGroup(' + group.id + ')">🗑️</button></div></div><div class="group-members">' + membersHtml + '</div>' + (tasksHtml ? '<div class="group-tasks"><div class="group-tasks-title">Tareas</div>' + tasksHtml + '</div>' : '<div class="group-empty" style="padding:20px">No hay tareas</div>');
@@ -638,7 +645,7 @@ const App = {
     const group = this.data.groups.find(g => g.id === task.groupId);
     const priorityLabels = { high: 'Alta', medium: 'Media', low: 'Baja' };
     const statusLabels = { todo: 'Por Hacer', progress: 'En Progreso', done: 'Hecho' };
-    let assigneeOptions = '<option value="">Sin asignar</option>';
+    let assigneeOptions = '<option value="">Asignación pendiente</option>';
     if (group && group.members) {
       group.members.forEach(m => {
         assigneeOptions += '<option value="' + m + '" ' + (task.assignee === m ? 'selected' : '') + '>' + m + '</option>';
@@ -710,7 +717,8 @@ const App = {
     const priorityOrder = { high: 1, medium: 2, low: 3 };
     const statusLabels = { todo: 'Por Hacer', progress: 'En Progreso', done: 'Hecho', archive: 'Archivo' };
     const activeTasks = this.data.tasks.filter(t => t.status !== 'archive');
-    if (activeTasks.length === 0) { container.innerHTML = '<div class="pendientes-empty">No hay tareas pendientes</div>'; return; }
+    const activeGroupTasks = this.data.groupTasks.filter(t => t.status !== 'archive' && t.status !== 'done');
+    if (activeTasks.length === 0 && activeGroupTasks.length === 0) { container.innerHTML = '<div class="pendientes-empty">No hay tareas pendientes</div>'; return; }
     const sortedTasks = activeTasks.sort((a, b) => {
       const prioDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
       if (prioDiff !== 0) return prioDiff;
@@ -719,7 +727,16 @@ const App = {
       if (b.dueDate) return 1;
       return 0;
     });
+    const sortedGroupTasks = activeGroupTasks.sort((a, b) => {
+      const prioDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
+      if (prioDiff !== 0) return prioDiff;
+      if (a.dueDate && b.dueDate) return new Date(a.dueDate) - new Date(b.dueDate);
+      if (a.dueDate) return -1;
+      if (b.dueDate) return 1;
+      return 0;
+    });
     let html = '';
+    // Group personal tasks by goal
     const goalsWithTasks = {};
     sortedTasks.forEach(task => {
       const goalName = task.goalId ? (this.data.goals.find(g => g.id === task.goalId)?.title || 'Sin objetivo') : 'Sin objetivo';
@@ -730,6 +747,22 @@ const App = {
       html += '<div class="pendientes-group"><div class="pendientes-group-title">' + goalName + '</div>';
       goalsWithTasks[goalName].forEach(task => {
         html += '<div class="pendientes-task" onclick="App.openTaskDetail(' + task.id + ')"><span class="pendientes-task-priority ' + task.priority + '"></span><div class="pendientes-task-info"><div class="pendientes-task-title">' + task.title + '</div><div class="pendientes-task-meta">' + (task.dueDate || 'Sin fecha') + '</div></div><span class="pendientes-task-status ' + task.status + '">' + statusLabels[task.status] + '</span></div>';
+      });
+      html += '</div>';
+    });
+    // Group tasks by team/group
+    const groupsWithTasks = {};
+    sortedGroupTasks.forEach(task => {
+      const group = this.data.groups.find(g => g.id === task.groupId);
+      const groupName = group ? group.name : 'Sin grupo';
+      if (!groupsWithTasks[groupName]) groupsWithTasks[groupName] = [];
+      groupsWithTasks[groupName].push(task);
+    });
+    Object.keys(groupsWithTasks).forEach(groupName => {
+      html += '<div class="pendientes-group"><div class="pendientes-group-title">👥 ' + groupName + '</div>';
+      groupsWithTasks[groupName].forEach(task => {
+        const assignedClass = task.assignee ? '' : 'unassigned';
+        html += '<div class="pendientes-task" onclick="App.openGroupTaskDetail(' + task.id + ')"><span class="pendientes-task-priority ' + task.priority + '"></span>' + (!task.assignee ? '<span class="pendientes-task-priority" style="background:var(--text-tertiary)" title="Sin asignar"></span>' : '') + '<div class="pendientes-task-info"><div class="pendientes-task-title">' + task.title + '</div><div class="pendientes-task-meta">' + (task.assignee ? '👤 ' + task.assignee + ' • ' : '⚠️ Asignación pendiente • ') + (task.dueDate || 'Sin fecha') + '</div></div><span class="pendientes-task-status ' + task.status + '">' + statusLabels[task.status] + '</span></div>';
       });
       html += '</div>';
     });
