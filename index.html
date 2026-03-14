@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Alfred System | Personal Command Center</title>
+  <title>Mattera | Centro de Comando Personal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    :root { --bg-primary: #ffffff; --bg-secondary: #f8f9fa; --bg-tertiary: #e9ecef; --glass-bg: rgba(0,0,0,0.03); --glass-border: rgba(0,0,0,0.08); --accent-platinum: #c0c0c8; --accent-gold: #d4af37; --accent-copper: #b87333; --accent-ice: #a8d8ea; --text-primary: #1a1a2e; --text-secondary: #6c757d; --text-tertiary: #adb5bd; --kanban-progress: #3d5a80; --shadow-medium: 0 4px 16px rgba(0,0,0,0.1); --shadow-elevated: 0 8px 32px rgba(0,0,0,0.15); --glow-gold: 0 4px 20px rgba(212,175,55,0.15); }
+    :root { --bg-primary: #ffffff; --bg-secondary: #eeeeee; --bg-tertiary: #cccccc; --glass-bg: rgba(0,0,0,0.03); --glass-border: rgba(0,0,0,0.15); --accent-platinum: #666666; --accent-blue: #0088cc; --accent-gold: #999999; --text-primary: #000000; --text-secondary: #666666; --text-tertiary: #999999; --kanban-progress: #0088cc; --shadow-medium: 0 4px 16px rgba(0,0,0,0.1); --shadow-elevated: 0 8px 32px rgba(0,0,0,0.15); --glow-blue: 0 4px 20px rgba(0,136,204,0.15); --priority-high: #ff4444; --priority-medium: #ffbb33; --priority-low: #00C851; }
     html { font-size: 16px; scroll-behavior: smooth; }
     body { font-family: 'Outfit', sans-serif; background: #f5f5f5; color: var(--text-primary); min-height: 100vh; overflow-x: hidden; line-height: 1.6; }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -19,19 +19,19 @@
     .sidebar { width: 280px; background: var(--bg-secondary); border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; padding: 24px; position: fixed; height: 100vh; z-index: 100; animation: slideInLeft 0.6s ease-out; }
     @keyframes slideInLeft { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     .logo { display: flex; align-items: center; gap: 12px; margin-bottom: 48px; }
-    .logo-icon { width: 48px; height: 48px; background: linear-gradient(135deg, var(--accent-platinum), var(--accent-gold)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-weight: 700; font-size: 24px; color: var(--bg-primary); box-shadow: var(--glow-gold); }
+    .logo-icon { width: 48px; height: 48px; background: linear-gradient(135deg, var(--accent-blue), #006699); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-weight: 700; font-size: 24px; color: var(--bg-primary); box-shadow: var(--glow-blue); }
     .logo-text { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 600; letter-spacing: 0.05em; }
     .nav-section { margin-bottom: 32px; }
     .nav-label { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--text-tertiary); margin-bottom: 12px; padding-left: 12px; }
     .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; color: var(--text-secondary); cursor: pointer; transition: all 0.2s ease; margin-bottom: 4px; border: 1px solid transparent; }
     .nav-item:hover { background: var(--glass-bg); color: var(--text-primary); border-color: var(--glass-border); }
-    .nav-item.active { background: var(--glass-bg); color: var(--accent-platinum); border-color: var(--accent-platinum); box-shadow: 0 0 20px rgba(192,192,200,0.1); }
+    .nav-item.active { background: var(--glass-bg); color: var(--accent-blue); border-color: var(--accent-blue); box-shadow: 0 0 20px rgba(0,136,204,0.1); }
     .nav-icon { width: 20px; height: 20px; opacity: 0.8; }
-    .quick-add { background: linear-gradient(135deg, var(--accent-gold), #c9a227); color: var(--bg-primary); border: none; padding: 16px 24px; border-radius: 12px; font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 0.9375rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s ease; box-shadow: var(--glow-gold); margin-top: auto; }
-    .quick-add:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(212,175,55,0.4); }
+    .quick-add { background: linear-gradient(135deg, var(--accent-blue), #006699); color: var(--bg-primary); border: none; padding: 16px 24px; border-radius: 12px; font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 0.9375rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s ease; box-shadow: var(--glow-blue); margin-top: auto; }
+    .quick-add:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,136,204,0.4); }
     .sidebar-footer { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--glass-border); }
     .user-profile { display: flex; align-items: center; gap: 12px; }
-    .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-ice), var(--accent-platinum)); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; color: var(--bg-primary); }
+    .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue)); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; color: var(--bg-primary); }
     .user-name { font-weight: 500; font-size: 0.9375rem; }
     .user-role { font-size: 0.75rem; color: var(--text-tertiary); }
     .main-content { flex: 1; margin-left: 280px; padding: 32px 40px; min-height: 100vh; animation: fadeIn 0.6s ease-out 0.2s both; }
@@ -46,7 +46,7 @@
     .stat-card:nth-child(3) { animation-delay: 0.5s; }
     .stat-card:nth-child(4) { animation-delay: 0.6s; }
     @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-    .stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-medium); border-color: var(--accent-platinum); }
+    .stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-medium); border-color: var(--accent-blue); }
     .stat-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; font-size: 20px; }
     .stat-icon.gold { background: rgba(212,175,55,0.15); }
     .stat-icon.platinum { background: rgba(192,192,200,0.15); }
@@ -62,7 +62,7 @@
     .progress-ring svg { transform: rotate(-90deg); width: 120px; height: 120px; }
     .progress-ring circle { fill: none; stroke-width: 8; stroke-linecap: round; }
     .progress-ring .bg { stroke: var(--bg-tertiary); }
-    .progress-ring .progress { stroke: var(--accent-gold); stroke-dasharray: 314; stroke-dashoffset: 314; transition: stroke-dashoffset 0.8s ease-in-out; filter: drop-shadow(0 0 8px rgba(212,175,55,0.5)); }
+    .progress-ring .progress { stroke: var(--accent-blue); stroke-dasharray: 314; stroke-dashoffset: 314; transition: stroke-dashoffset 0.8s ease-in-out; filter: drop-shadow(0 0 8px rgba(212,175,55,0.5)); }
     .progress-ring-value { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.5rem; font-weight: 700; }
     .progress-ring-label { font-size: 0.875rem; color: var(--text-secondary); text-align: center; }
     .kanban-section { margin-bottom: 48px; }
@@ -73,22 +73,22 @@
     .column-dot { width: 10px; height: 10px; border-radius: 50%; }
     .column-dot.todo { background: var(--text-tertiary); }
     .column-dot.progress { background: var(--kanban-progress); box-shadow: 0 0 10px var(--kanban-progress); }
-    .column-dot.done { background: var(--accent-gold); box-shadow: 0 0 10px var(--accent-gold); }
+    .column-dot.done { background: var(--accent-blue); box-shadow: 0 0 10px var(--accent-blue); }
     .column-dot.archive { background: var(--text-tertiary); }
     .column-count { background: var(--bg-tertiary); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; color: var(--text-secondary); }
     .column-cards { flex: 1; display: flex; flex-direction: column; gap: 12px; }
     .kanban-card { background: var(--bg-tertiary); border: 1px solid var(--glass-border); border-radius: 12px; padding: 16px; cursor: grab; transition: all 0.2s ease; }
-    .kanban-card:hover { transform: scale(1.02); box-shadow: var(--shadow-medium); border-color: var(--accent-platinum); }
+    .kanban-card:hover { transform: scale(1.02); box-shadow: var(--shadow-medium); border-color: var(--accent-blue); }
     .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
     .card-title { font-weight: 500; font-size: 0.9375rem; line-height: 1.4; }
     .card-priority { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
-    .card-priority.high { background: var(--accent-copper); box-shadow: 0 0 8px var(--accent-copper); }
-    .card-priority.medium { background: var(--accent-gold); }
-    .card-priority.low { background: var(--accent-ice); }
+    .card-priority.high { background: var(--priority-high); box-shadow: 0 0 8px var(--priority-high); }
+    .card-priority.medium { background: var(--priority-medium); }
+    .card-priority.low { background: var(--priority-low); }
     .card-description { font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .card-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-tertiary); }
     .add-card-btn { width: 100%; padding: 12px; background: transparent; border: 1px dashed var(--glass-border); border-radius: 12px; color: var(--text-tertiary); font-family: 'Outfit', sans-serif; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease; margin-top: 12px; }
-    .add-card-btn:hover { border-color: var(--accent-platinum); color: var(--accent-platinum); background: var(--glass-bg); }
+    .add-card-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); background: var(--glass-bg); }
     .typing-dot:nth-child(1) { animation-delay: 0s; }
     .typing-dot:nth-child(2) { animation-delay: 0.2s; }
     .typing-dot:nth-child(3) { animation-delay: 0.4s; }
@@ -108,14 +108,14 @@
     .form-group { margin-bottom: 20px; }
     .form-label { display: block; font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500; }
     .form-input, .form-textarea, .form-select { width: 100%; background: var(--bg-tertiary); border: 1px solid var(--glass-border); border-radius: 10px; padding: 12px 16px; color: var(--text-primary); font-family: 'Outfit', sans-serif; font-size: 0.9375rem; transition: border-color 0.2s; }
-    .form-input:focus, .form-textarea:focus, .form-select:focus { outline: none; border-color: var(--accent-platinum); }
+    .form-input:focus, .form-textarea:focus, .form-select:focus { outline: none; border-color: var(--accent-blue); }
     .form-textarea { min-height: 100px; resize: vertical; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .modal-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; }
     .btn { padding: 12px 24px; border-radius: 10px; font-family: 'Outfit', sans-serif; font-weight: 500; font-size: 0.9375rem; cursor: pointer; transition: all 0.2s ease; }
     .btn-secondary { background: transparent; border: 1px solid var(--glass-border); color: var(--text-secondary); }
     .btn-secondary:hover { border-color: var(--text-secondary); color: var(--text-primary); }
-    .btn-primary { background: linear-gradient(135deg, var(--accent-gold), #c9a227); border: none; color: var(--bg-primary); }
+    .btn-primary { background: linear-gradient(135deg, var(--accent-blue), #c9a227); border: none; color: var(--bg-primary); }
     .btn-primary:hover { box-shadow: var(--glow-gold); transform: translateY(-2px); }
     .empty-state { text-align: center; padding: 40px 20px; color: var(--text-tertiary); }
     .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
@@ -131,26 +131,26 @@
     /* Goals view styles */
     .goals-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
     .goal-card { background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: 16px; padding: 24px; transition: all 0.3s ease; }
-    .goal-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-medium); border-color: var(--accent-platinum); }
+    .goal-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-medium); border-color: var(--accent-blue); }
     .goal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
     .goal-title { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 600; }
     .goal-actions { display: flex; gap: 8px; }
     .goal-action-btn { background: transparent; border: none; color: var(--text-tertiary); cursor: pointer; padding: 4px; font-size: 16px; }
-    .goal-action-btn:hover { color: var(--accent-gold); }
+    .goal-action-btn:hover { color: var(--accent-blue); }
     .goal-action-btn.delete:hover { color: var(--accent-copper); }
     .goal-description { color: var(--text-secondary); font-size: 0.9375rem; margin-bottom: 16px; line-height: 1.5; }
     .goal-meta { display: flex; gap: 16px; font-size: 0.8125rem; color: var(--text-tertiary); margin-bottom: 16px; }
     .goal-progress-bar { height: 8px; background: var(--bg-tertiary); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
-    .goal-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent-gold), #c9a227); border-radius: 4px; transition: width 0.5s ease; }
+    .goal-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent-blue), #c9a227); border-radius: 4px; transition: width 0.5s ease; }
     .goal-progress-text { font-size: 0.8125rem; color: var(--text-secondary); text-align: right; }
     .goal-tasks { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--glass-border); }
     .goal-tasks-list { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--glass-border); }
     .goal-task-item { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--glass-border); }
     .goal-task-item:last-child { border-bottom: none; }
     .goal-task-priority { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .goal-task-priority.high { background: var(--accent-copper); }
-    .goal-task-priority.medium { background: var(--accent-gold); }
-    .goal-task-priority.low { background: var(--accent-ice); }
+    .goal-task-priority.high { background: var(--priority-high); }
+    .goal-task-priority.medium { background: var(--priority-medium); }
+    .goal-task-priority.low { background: var(--priority-low); }
     .goal-task-title { flex: 1; font-size: 0.875rem; }
     .goal-task-title.completed { text-decoration: line-through; color: var(--text-tertiary); }
     .goal-task-priority-select { background: var(--bg-tertiary); border: 1px solid var(--glass-border); border-radius: 6px; padding: 4px 8px; font-size: 0.75rem; color: var(--text-secondary); cursor: pointer; }
@@ -158,7 +158,7 @@
     .goal-task { display: flex; align-items: center; gap: 8px; padding: 8px 0; font-size: 0.875rem; }
     .goal-task-checkbox { width: 16px; height: 16px; cursor: pointer; }
     .goal-task.completed { text-decoration: line-through; color: var(--text-tertiary); }
-    .add-goal-btn { background: linear-gradient(135deg, var(--accent-gold), #c9a227); color: var(--bg-primary); border: none; padding: 16px 32px; border-radius: 12px; font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 1rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s ease; box-shadow: var(--glow-gold); }
+    .add-goal-btn { background: linear-gradient(135deg, var(--accent-blue), #c9a227); color: var(--bg-primary); border: none; padding: 16px 32px; border-radius: 12px; font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 1rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s ease; box-shadow: var(--glow-gold); }
     .add-goal-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(212,175,55,0.4); }
     /* Suggested tasks */
     .suggested-section { background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: 16px; padding: 24px; margin-bottom: 32px; }
@@ -166,7 +166,7 @@
     .suggested-list { display: flex; flex-direction: column; gap: 12px; }
     .suggested-task { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--bg-tertiary); border-radius: 10px; cursor: grab; transition: all 0.2s; }
     .suggested-task:hover { background: var(--glass-bg); }
-    .suggested-task-btn { background: transparent; border: none; color: var(--accent-gold); cursor: pointer; font-size: 18px; padding: 4px; }
+    .suggested-task-btn { background: transparent; border: none; color: var(--accent-blue); cursor: pointer; font-size: 18px; padding: 4px; }
     /* Journal styles */
     .journal-container { max-width: 800px; }
     .journal-entries { display: flex; flex-direction: column; gap: 20px; }
@@ -194,7 +194,7 @@
 <body>
   <div class="app-container">
     <aside class="sidebar">
-      <div class="logo"><div class="logo-icon">A</div><span class="logo-text">Alfred</span></div>
+      <div class="logo"><div class="logo-icon">M</div><span class="logo-text">Mattera</span></div>
       <nav class="nav-section">
         <div class="nav-label">Principal</div>
         <div class="nav-item active" data-view="dashboard"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</div>
