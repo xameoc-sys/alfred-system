@@ -292,6 +292,7 @@
       <div class="modal-header"><h2 class="modal-title" id="journalModalTitle">Nueva Entrada</h2><button class="modal-close" id="journalModalClose">×</button></div>
       <form id="journalForm">
         <div class="form-group"><label class="form-label">Fecha</label><input type="date" class="form-input" id="journalDate"></div>
+        <div class="form-group"><label class="form-label">Título</label><input type="text" class="form-input" id="journalTitle" placeholder="Título de tu entrada"></div>
         <div class="form-group"><label class="form-label">¿Qué hiciste hoy?</label><textarea class="form-textarea" id="journalContent" placeholder="Describe tu día, logros, aprendizajes, reflexiones..." style="min-height: 200px;"></textarea></div>
         <div class="modal-actions"><button type="button" class="btn btn-secondary" id="journalModalCancel">Cancelar</button><button type="submit" class="btn btn-primary">Guardar</button></div>
       </form>
@@ -367,24 +368,27 @@ const App = {
       const entry = this.data.journal.find(j => j.id === entryId);
       if (entry) {
         document.getElementById('journalDate').value = entry.date;
+        document.getElementById('journalTitle').value = entry.title || '';
         document.getElementById('journalContent').value = entry.content;
       }
     } else {
       document.getElementById('journalDate').value = new Date().toISOString().split('T')[0];
+      document.getElementById('journalTitle').value = '';
       document.getElementById('journalContent').value = '';
     }
     document.getElementById('journalModal').classList.add('active'); 
-    document.getElementById('journalContent').focus(); 
+    document.getElementById('journalTitle').focus(); 
   },
   closeJournalModal() { document.getElementById('journalModal').classList.remove('active'); document.getElementById('journalForm').reset(); this.editingJournalId = null; },
   saveJournal() {
     const date = document.getElementById('journalDate').value;
+    const title = document.getElementById('journalTitle').value;
     const content = document.getElementById('journalContent').value;
     if (this.editingJournalId) {
       const entry = this.data.journal.find(j => j.id === this.editingJournalId);
-      if (entry) { entry.date = date; entry.content = content; }
+      if (entry) { entry.date = date; entry.title = title; entry.content = content; }
     } else {
-      this.data.journal.push({ id: Date.now(), date: date, content: content, createdAt: new Date().toISOString() });
+      this.data.journal.push({ id: Date.now(), date: date, title: title, content: content, createdAt: new Date().toISOString() });
     }
     this.data.journal.sort((a, b) => new Date(b.date) - new Date(a.date));
     this.save(); this.closeJournalModal(); this.render();
@@ -401,7 +405,7 @@ const App = {
     this.data.journal.forEach(entry => {
       const div = document.createElement('div');
       div.className = 'journal-entry';
-      div.innerHTML = '<div class="journal-entry-header"><span class="journal-entry-date">' + new Date(entry.date).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + '</span><div class="journal-entry-actions"><button class="goal-action-btn" onclick="App.editJournal(' + entry.id + ')">✏️</button><button class="goal-action-btn delete" onclick="App.deleteJournal(' + entry.id + ')">🗑️</button></div></div><div class="journal-entry-content">' + entry.content + '</div>';
+      div.innerHTML = '<div class="journal-entry-header"><span class="journal-entry-date">' + (entry.title ? entry.title + ' - ' : '') + new Date(entry.date).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + '</span><div class="journal-entry-actions"><button class="goal-action-btn" onclick="App.editJournal(' + entry.id + ')">✏️</button><button class="goal-action-btn delete" onclick="App.deleteJournal(' + entry.id + ')">🗑️</button></div></div><div class="journal-entry-content">' + entry.content + '</div>';
       container.appendChild(div);
     });
   },
