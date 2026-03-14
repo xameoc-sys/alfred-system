@@ -89,32 +89,6 @@
     .card-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-tertiary); }
     .add-card-btn { width: 100%; padding: 12px; background: transparent; border: 1px dashed var(--glass-border); border-radius: 12px; color: var(--text-tertiary); font-family: 'Outfit', sans-serif; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease; margin-top: 12px; }
     .add-card-btn:hover { border-color: var(--accent-platinum); color: var(--accent-platinum); background: var(--glass-bg); }
-    .chat-toggle { position: fixed; right: 24px; bottom: 24px; width: 60px; height: 60px; background: linear-gradient(135deg, var(--accent-platinum), var(--accent-gold)); border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.15), var(--glow-gold); transition: all 0.3s ease; z-index: 200; animation: popIn 0.6s ease-out 1s both; }
-    @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    .chat-toggle:hover { transform: scale(1.1); }
-    .chat-panel { position: fixed; right: -400px; top: 0; width: 400px; height: 100vh; background: var(--bg-secondary); border-left: 1px solid var(--glass-border); z-index: 150; display: flex; flex-direction: column; transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: -10px 0 40px rgba(0,0,0,0.1); }
-    .chat-panel.open { right: 0; }
-    .chat-header { padding: 24px; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; }
-    .chat-title { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 600; }
-    .chat-close { background: transparent; border: none; color: var(--text-secondary); font-size: 24px; cursor: pointer; padding: 4px; }
-    .chat-context { padding: 12px 24px; background: var(--bg-tertiary); font-size: 0.75rem; color: var(--text-secondary); border-bottom: 1px solid var(--glass-border); }
-    .chat-context-label { color: var(--accent-gold); font-weight: 500; }
-    .chat-messages { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
-    .message { max-width: 85%; padding: 12px 16px; border-radius: 16px; font-size: 0.9375rem; line-height: 1.5; animation: messageIn 0.3s ease-out; }
-    @keyframes messageIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .message.alfred { background: var(--bg-tertiary); border: 1px solid var(--glass-border); align-self: flex-start; border-bottom-left-radius: 4px; }
-    .message.user { background: linear-gradient(135deg, var(--accent-platinum), #a8a8b8); color: var(--bg-primary); align-self: flex-end; border-bottom-right-radius: 4px; }
-    .message-time { font-size: 0.6875rem; color: var(--text-tertiary); margin-top: 4px; }
-    .chat-input-area { padding: 24px; border-top: 1px solid var(--glass-border); }
-    .chat-input-wrapper { display: flex; gap: 12px; }
-    .chat-input { flex: 1; background: var(--bg-tertiary); border: 1px solid var(--glass-border); border-radius: 12px; padding: 12px 16px; color: var(--text-primary); font-family: 'Outfit', sans-serif; font-size: 0.9375rem; resize: none; transition: border-color 0.2s; }
-    .chat-input:focus { outline: none; border-color: var(--accent-platinum); }
-    .chat-input::placeholder { color: var(--text-tertiary); }
-    .chat-send { width: 48px; height: 48px; background: linear-gradient(135deg, var(--accent-gold), #c9a227); border: none; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; flex-shrink: 0; }
-    .chat-send:hover { transform: scale(1.05); box-shadow: var(--glow-gold); }
-    .typing-indicator { display: none; padding: 12px 16px; background: var(--bg-tertiary); border-radius: 16px; border-bottom-left-radius: 4px; align-self: flex-start; }
-    .typing-indicator.active { display: flex; gap: 4px; }
-    .typing-dot { width: 8px; height: 8px; background: var(--text-tertiary); border-radius: 50%; animation: typingBounce 1.4s infinite ease-in-out; }
     .typing-dot:nth-child(1) { animation-delay: 0s; }
     .typing-dot:nth-child(2) { animation-delay: 0.2s; }
     .typing-dot:nth-child(3) { animation-delay: 0.4s; }
@@ -175,7 +149,7 @@
     .suggested-task:hover { background: var(--glass-bg); }
     .suggested-task-btn { background: transparent; border: none; color: var(--accent-gold); cursor: pointer; font-size: 18px; padding: 4px; }
     @media (max-width: 1200px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .kanban-board { grid-template-columns: repeat(2, 1fr); } .goals-grid { grid-template-columns: 1fr; } }
-    @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .main-content { margin-left: 0; padding: 20px; } .stats-grid { grid-template-columns: 1fr; } .kanban-board { grid-template-columns: 1fr; } .chat-panel { width: 100%; right: -100%; } }
+    @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .main-content { margin-left: 0; padding: 20px; } .stats-grid { grid-template-columns: 1fr; } .kanban-board { grid-template-columns: 1fr; }  }
   </style>
 </head>
 <body>
@@ -236,14 +210,7 @@
       </section>
     </main>
   </div>
-  <button class="chat-toggle" id="chatToggle">🤖</button>
-  <div class="chat-panel" id="chatPanel">
-    <div class="chat-header"><span class="chat-title">Alfred</span><button class="chat-close" id="chatClose">×</button></div>
-    <div class="chat-context"><span class="chat-context-label">Contexto:</span> <span id="chatContextText">Sin contexto definido. Usa /context para darme contexto.</span></div>
-    <div class="chat-messages" id="chatMessages"><div class="message alfred">Soy Alfred. Estoy aquí para impulsarte a trabajar tan duro que sea imposible fracasar. Dame contexto sobre tu proyecto y te ayudaré a dividirlo en pasos accionables. ¿Qué estás construyendo?</div></div>
-    <div class="typing-indicator" id="typingIndicator"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>
-    <div class="chat-input-area"><div class="chat-input-wrapper"><textarea class="chat-input" id="chatInput" placeholder="Escribe tu mensaje..." rows="1"></textarea><button class="chat-send" id="chatSend"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22,2 15,22 11,13 2,9 22,2"/></svg></button></div></div>
-  </div>
+
   <div class="modal-overlay" id="taskModal">
     <div class="modal">
       <div class="modal-header"><h2 class="modal-title" id="modalTitle">Nueva Tarea</h2><button class="modal-close" id="modalClose">×</button></div>
@@ -274,7 +241,7 @@
   </div>
   <script>
 const App = {
-  data: { tasks: [], goals: [], context: '', weekCompleted: 0, weekTotal: 7, suggestedTasks: [] },
+  data: { tasks: [], goals: [], weekCompleted: 0, weekTotal: 7, suggestedTasks: [] },
   currentView: 'dashboard',
   init() { this.load(); this.bindEvents(); this.render(); },
   load() { const saved = localStorage.getItem('alfred-data'); if (saved) { const parsed = JSON.parse(saved); this.data = { ...this.data, ...parsed }; } },
@@ -290,10 +257,6 @@ const App = {
     this.render();
   },
   bindEvents() {
-    document.getElementById('chatToggle').addEventListener('click', () => document.getElementById('chatPanel').classList.add('open'));
-    document.getElementById('chatClose').addEventListener('click', () => document.getElementById('chatPanel').classList.remove('open'));
-    document.getElementById('chatSend').addEventListener('click', () => this.sendMessage());
-    document.getElementById('chatInput').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.sendMessage(); } });
     document.getElementById('quickAddBtn').addEventListener('click', () => this.openModal('todo'));
     document.querySelectorAll('.add-card-btn').forEach(btn => btn.addEventListener('click', () => this.openModal(btn.dataset.status)));
     document.getElementById('modalClose').addEventListener('click', () => this.closeModal());
@@ -326,12 +289,12 @@ const App = {
   },
   generateSuggestedTasks(goal) {
     const templates = [
-      { title: 'Investigar sobre ' + goal.title, desc: 'Recopila información relevante', prio: 'high' },
-      { title: 'Crear plan de acción para ' + goal.title, desc: 'Define los pasos a seguir', prio: 'high' },
-      { title: 'Primera acción: ', desc: 'El primer paso concreto', prio: 'medium' },
-      { title: 'Revisar progreso de ' + goal.title, desc: 'Evalúa avances', prio: 'low' }
+      { title: 'Investigar sobre ' + goal.title, description: 'Recopila información relevante', priority: 'high' },
+      { title: 'Crear plan de acción para ' + goal.title, description: 'Define los pasos a seguir', priority: 'high' },
+      { title: 'Primera acción: ', description: 'El primer paso concreto', priority: 'medium' },
+      { title: 'Revisar progreso de ' + goal.title, description: 'Evalúa avances', priority: 'low' }
     ];
-    return templates.map(t => ({ ...t, id: Date.now() + Math.random(), goalId: goal.id, status: 'todo', dueDate: '', createdAt: new Date().toISOString() }));
+    return templates.map(t => ({ ...t, id: Math.floor(Date.now() + Math.random() * 10000), goalId: goal.id, status: 'todo', dueDate: '', createdAt: new Date().toISOString() }));
   },
   deleteGoal(id) { if (confirm('¿Eliminar este objetivo?')) { this.data.goals = this.data.goals.filter(g => g.id !== id); this.data.tasks = this.data.tasks.filter(t => t.goalId !== id); this.data.suggestedTasks = this.data.suggestedTasks.filter(t => t.goalId !== id); this.save(); this.render(); } },
   addSuggestedToTask(taskId) {
@@ -339,35 +302,6 @@ const App = {
     if (suggested) { const task = { ...suggested, status: 'todo', goalId: suggested.goalId }; this.data.tasks.push(task); this.data.suggestedTasks = this.data.suggestedTasks.filter(t => t.id !== taskId); this.save(); this.render(); }
   },
   deleteTask(id) { this.data.tasks = this.data.tasks.filter(t => t.id !== id); this.save(); this.render(); },
-  sendMessage() {
-    const input = document.getElementById('chatInput');
-    const text = input.value.trim();
-    if (!text) return;
-    this.addMessage(text, 'user');
-    input.value = '';
-    if (text.startsWith('/context ')) { this.data.context = text.replace('/context ', ''); document.getElementById('chatContextText').textContent = this.data.context; this.save(); this.addMessage('Contexto actualizado. Ahora tengo una mejor comprensión de tu situación. ¿En qué puedo ayudarte a avanzar?', 'alfred'); }
-    else if (text.startsWith('/objetivo')) { this.addMessage('Vamos a crear un nuevo objetivo. ¿Cuál es tu meta principal?', 'alfred'); setTimeout(() => this.openGoalModal(), 500); }
-    else { document.getElementById('typingIndicator').classList.add('active'); setTimeout(() => { document.getElementById('typingIndicator').classList.remove('active'); this.addMessage(this.getAlfredResponse(text), 'alfred'); }, 1500); }
-  },
-  addMessage(text, sender) { const div = document.createElement('div'); div.className = 'message ' + sender; div.textContent = text; document.getElementById('chatMessages').appendChild(div); document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight; },
-  getAlfredResponse(input) {
-    const ctx = this.data.context.toLowerCase();
-    const tasks = this.data.tasks.filter(t => t.status !== 'archive');
-    const done = this.data.tasks.filter(t => t.status === 'done').length;
-    const total = this.data.tasks.length;
-    const progress = this.data.tasks.filter(t => t.status === 'progress').length;
-    const responses = [
-      'El éxito no viene de esperar inspiración. Viene de levantarte y hacer el trabajo cuando no quieres. ¿Qué tienes pendiente?',
-      'Steve Jobs dijo: "La gente que está lo suficientemente loca como para pensar que pueden cambiar el mundo, son los que lo hacen." ¿Estás listo para action?',
-      'Tienes ' + tasks.length + ' tareas pendientes. No necesitas más planificación. Necesitas ejecución. ¿Cuál es la siguiente?',
-      done > 0 ? 'Bien, has completado ' + done + ' tareas. Pero el rastro no sirve de nada si no sigues adelante. ¿Qué sigue?' : 'Aún no has completado nada. El primer paso es siempre el más difícil. Empieza.',
-      progress > 0 ? 'Tienes ' + progress + ' tareas en progreso. ¿Por qué no las terminas antes de empezar algo nuevo?' : '¿Por qué tienes tareas en "en progreso" sin terminar? El multitasking es una ilusión.',
-      ctx.includes('fundador') || ctx.includes('empresa') || ctx.includes('startup') ? 'Como fundador, tu trabajo no es hacer todo. Es asegurarte de que las cosas importantes se hagan. ¿Qué está frenando tu empresa ahora?' : 'Sin importar qué estés construyendo, el principio es el mismo: ejecuta, aprende, ajusta, repite.'
-    ];
-    if (input.toLowerCase().includes('ayuda') || input.toLowerCase().includes('help')) { return 'Dime específicamente qué necesitas hacer y te ayudo a dividirlo en pasos pequeños y accionables. ¿Cuál es tu siguiente tarea?'; }
-    if (input.toLowerCase().includes('no sé') || input.toLowerCase().includes('no se') || input.toLowerCase().includes('bloqueado')) { return 'El bloqueo usually es falta de información o exceso de pensamiento. Empieza con cualquier cosa. Lo perfeito es el enemigo de lo bueno.'; }
-    return responses[Math.floor(Math.random() * responses.length)];
-  },
   setupDragDrop() {
     let draggedItem = null;
     document.querySelectorAll('.kanban-column').forEach(col => {
