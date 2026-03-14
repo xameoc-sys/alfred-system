@@ -117,6 +117,9 @@
     .card-delete { background: transparent; border: none; color: var(--text-tertiary); cursor: pointer; padding: 4px; opacity: 0; transition: opacity 0.2s; }
     .kanban-card:hover .card-delete { opacity: 1; }
     .card-delete:hover { color: var(--accent-copper); }
+    .card-goal { font-size: 0.7rem; background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px; }
+    .card-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--glass-border); }
+    .card-priority-select { background: var(--bg-tertiary); border: 1px solid var(--glass-border); border-radius: 6px; padding: 4px 8px; font-size: 0.7rem; color: var(--text-secondary); cursor: pointer; }
     /* View switching */
     .view-section { display: none; }
     .view-section.active { display: block; }
@@ -136,6 +139,17 @@
     .goal-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent-gold), #c9a227); border-radius: 4px; transition: width 0.5s ease; }
     .goal-progress-text { font-size: 0.8125rem; color: var(--text-secondary); text-align: right; }
     .goal-tasks { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--glass-border); }
+    .goal-tasks-list { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--glass-border); }
+    .goal-task-item { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--glass-border); }
+    .goal-task-item:last-child { border-bottom: none; }
+    .goal-task-priority { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .goal-task-priority.high { background: var(--accent-copper); }
+    .goal-task-priority.medium { background: var(--accent-gold); }
+    .goal-task-priority.low { background: var(--accent-ice); }
+    .goal-task-title { flex: 1; font-size: 0.875rem; }
+    .goal-task-title.completed { text-decoration: line-through; color: var(--text-tertiary); }
+    .goal-task-priority-select { background: var(--bg-tertiary); border: 1px solid var(--glass-border); border-radius: 6px; padding: 4px 8px; font-size: 0.75rem; color: var(--text-secondary); cursor: pointer; }
+    .goal-no-tasks { text-align: center; color: var(--text-tertiary); font-size: 0.875rem; padding: 16px 0; }
     .goal-task { display: flex; align-items: center; gap: 8px; padding: 8px 0; font-size: 0.875rem; }
     .goal-task-checkbox { width: 16px; height: 16px; cursor: pointer; }
     .goal-task.completed { text-decoration: line-through; color: var(--text-tertiary); }
@@ -221,6 +235,7 @@
           <div class="form-group"><label class="form-label">Prioridad</label><select class="form-select" id="taskPriority"><option value="low">Baja</option><option value="medium" selected>Media</option><option value="high">Alta</option></select></div>
           <div class="form-group"><label class="form-label">Fecha límite</label><input type="date" class="form-input" id="taskDueDate"></div>
         </div>
+        <div class="form-group"><label class="form-label">Asignar a Objetivo</label><select class="form-select" id="taskGoal"><option value="">Sin objetivo</option></select></div>
         <div class="modal-actions"><button type="button" class="btn btn-secondary" id="modalCancel">Cancelar</button><button type="submit" class="btn btn-primary">Guardar</button></div>
       </form>
     </div>
@@ -271,12 +286,22 @@ const App = {
     document.querySelectorAll('.nav-item').forEach(item => item.addEventListener('click', (e) => { this.switchView(e.currentTarget.dataset.view); }));
     this.setupDragDrop();
   },
-  openModal(status) { this.currentStatus = status; document.getElementById('modalTitle').textContent = 'Nueva Tarea'; document.getElementById('taskModal').classList.add('active'); document.getElementById('taskTitle').focus(); },
+  openModal(status) { 
+    this.currentStatus = status; 
+    document.getElementById('modalTitle').textContent = 'Nueva Tarea'; 
+    // Populate goal selector
+    const goalSelect = document.getElementById('taskGoal');
+    goalSelect.innerHTML = '<option value="">Sin objetivo</option>';
+    this.data.goals.forEach(g => { goalSelect.innerHTML += '<option value="' + g.id + '">' + g.title + '</option>'; });
+    document.getElementById('taskModal').classList.add('active'); 
+    document.getElementById('taskTitle').focus(); 
+  },
   closeModal() { document.getElementById('taskModal').classList.remove('active'); document.getElementById('taskForm').reset(); },
   openGoalModal() { document.getElementById('goalModalTitle').textContent = 'Nuevo Objetivo'; document.getElementById('goalModal').classList.add('active'); document.getElementById('goalTitle').focus(); },
   closeGoalModal() { document.getElementById('goalModal').classList.remove('active'); document.getElementById('goalForm').reset(); },
   saveTask() {
-    const task = { id: Date.now(), title: document.getElementById('taskTitle').value, description: document.getElementById('taskDescription').value, priority: document.getElementById('taskPriority').value, dueDate: document.getElementById('taskDueDate').value, status: this.currentStatus || 'todo', createdAt: new Date().toISOString(), goalId: null };
+    const goalId = document.getElementById('taskGoal').value;
+    const task = { id: Date.now(), title: document.getElementById('taskTitle').value, description: document.getElementById('taskDescription').value, priority: document.getElementById('taskPriority').value, dueDate: document.getElementById('taskDueDate').value, status: this.currentStatus || 'todo', createdAt: new Date().toISOString(), goalId: goalId ? parseInt(goalId) : null };
     this.data.tasks.push(task); this.save(); this.closeModal(); this.render();
   },
   saveGoal() {
@@ -303,6 +328,7 @@ const App = {
     if (suggested) { const task = { ...suggested, status: 'todo', goalId: suggested.goalId }; this.data.tasks.push(task); this.data.suggestedTasks = this.data.suggestedTasks.filter(t => t.id !== taskId); this.save(); this.render(); }
   },
   deleteTask(id) { this.data.tasks = this.data.tasks.filter(t => t.id !== id); this.save(); this.render(); },
+  updateTaskPriority(id, priority) { const task = this.data.tasks.find(t => t.id === id); if (task) { task.priority = priority; this.save(); this.render(); } },
   setupDragDrop() {
     let draggedItem = null;
     document.querySelectorAll('.kanban-column').forEach(col => {
@@ -343,8 +369,20 @@ const App = {
   renderGoals() {
     const grid = document.getElementById('goalsGrid');
     grid.innerHTML = '';
-    if (this.data.goals.length === 0) { grid.innerHTML = '<div class="empty-state"><div class="empty-icon">🎯</div><p>No hay objetivos yet. ¡Crea uno!</p></div>'; return; }
-    this.data.goals.forEach(goal => { const goalTasks = this.data.tasks.filter(t => t.goalId === goal.id); const completedTasks = goalTasks.filter(t => t.status === 'done').length; const progress = goalTasks.length > 0 ? Math.round((completedTasks / goalTasks.length) * 100) : 0; const div = document.createElement('div'); div.className = 'goal-card'; div.innerHTML = '<div class="goal-header"><span class="goal-title">' + goal.title + '</span><div class="goal-actions"><button class="goal-action-btn" onclick="App.editGoal(' + goal.id + ')">✏️</button><button class="goal-action-btn delete" onclick="App.deleteGoal(' + goal.id + ')">🗑️</button></div></div>' + (goal.description ? '<div class="goal-description">' + goal.description + '</div>' : '') + '<div class="goal-meta"><span>📅 ' + (goal.dueDate || 'Sin fecha') + '</span><span>🏷️ ' + goal.category + '</span></div><div class="goal-progress-bar"><div class="goal-progress-fill" style="width:' + progress + '%"></div></div><div class="goal-progress-text">' + completedTasks + '/' + goalTasks.length + ' tareas completadas</div>'; grid.appendChild(div); });
+    if (this.data.goals.length === 0) { grid.innerHTML = '<div class="empty-state"><div class="empty-icon">🎯</div><p>No hay objetivos. ¡Crea uno!</p></div>'; return; }
+    this.data.goals.forEach(goal => { 
+      const goalTasks = this.data.tasks.filter(t => t.goalId === goal.id); 
+      const completedTasks = goalTasks.filter(t => t.status === 'done').length; 
+      const progress = goalTasks.length > 0 ? Math.round((completedTasks / goalTasks.length) * 100) : 0; 
+      let tasksHtml = '';
+      goalTasks.forEach(task => { 
+        tasksHtml += '<div class="goal-task-item"><span class="goal-task-priority ' + task.priority + '" title="Prioridad: ' + task.priority + '"></span><span class="goal-task-title' + (task.status === 'done' ? ' completed' : '') + '">' + task.title + '</span><select class="goal-task-priority-select" onchange="App.updateTaskPriority(' + task.id + ', this.value)"><option value="low" ' + (task.priority === 'low' ? 'selected' : '') + '>Baja</option><option value="medium" ' + (task.priority === 'medium' ? 'selected' : '') + '>Media</option><option value="high" ' + (task.priority === 'high' ? 'selected' : '') + '>Alta</option></select></div>'; 
+      });
+      const div = document.createElement('div'); 
+      div.className = 'goal-card'; 
+      div.innerHTML = '<div class="goal-header"><span class="goal-title">' + goal.title + '</span><div class="goal-actions"><button class="goal-action-btn delete" onclick="App.deleteGoal(' + goal.id + ')">🗑️</button></div></div>' + (goal.description ? '<div class="goal-description">' + goal.description + '</div>' : '') + '<div class="goal-meta"><span>📅 ' + (goal.dueDate || 'Sin fecha') + '</span><span>🏷️ ' + goal.category + '</span></div><div class="goal-progress-bar"><div class="goal-progress-fill" style="width:' + progress + '%"></div></div><div class="goal-progress-text">' + completedTasks + '/' + goalTasks.length + ' tareas completadas</div><div class="goal-tasks-list">' + (tasksHtml || '<div class="goal-no-tasks">Sin tareas asignadas</div>') + '</div>'; 
+      grid.appendChild(div); 
+    });
   },
   renderSuggestedTasks() {
     const section = document.getElementById('suggestedSection');
@@ -354,7 +392,15 @@ const App = {
     list.innerHTML = '';
     this.data.suggestedTasks.forEach(task => { const div = document.createElement('div'); div.className = 'suggested-task'; div.innerHTML = '<button class="suggested-task-btn" onclick="App.addSuggestedToTask(' + task.id + ')">➕</button><div><strong>' + task.title + '</strong><br><small>' + task.desc + '</small></div>'; list.appendChild(div); });
   },
-  createCard(task) { const div = document.createElement('div'); div.className = 'kanban-card'; div.draggable = true; div.dataset.id = task.id; div.innerHTML = '<div class="card-header"><span class="card-title">' + task.title + '</span><span class="card-priority ' + task.priority + '"></span></div>' + (task.description ? '<div class="card-description">' + task.description + '</div>' : '') + '<div class="card-meta"><span>' + (task.dueDate || 'Sin fecha') + '</span><button class="card-delete" onclick="App.deleteTask(' + task.id + ')">×</button></div>'; return div; },
+  createCard(task) { 
+    const div = document.createElement('div'); 
+    div.className = 'kanban-card'; 
+    div.draggable = true; 
+    div.dataset.id = task.id; 
+    const goalName = task.goalId ? (this.data.goals.find(g => g.id === task.goalId)?.title || '') : '';
+    div.innerHTML = '<div class="card-header"><span class="card-title">' + task.title + '</span><span class="card-priority ' + task.priority + '"></span></div>' + (task.description ? '<div class="card-description">' + task.description + '</div>' : '') + '<div class="card-meta"><span>' + (task.dueDate || 'Sin fecha') + '</span>' + (goalName ? '<span class="card-goal">🎯 ' + goalName.substring(0, 15) + '</span>' : '') + '</div><div class="card-actions"><select class="card-priority-select" onchange="App.updateTaskPriority(' + task.id + ', this.value)"><option value="low" ' + (task.priority === 'low' ? 'selected' : '') + '>Baja</option><option value="medium" ' + (task.priority === 'medium' ? 'selected' : '') + '>Media</option><option value="high" ' + (task.priority === 'high' ? 'selected' : '') + '>Alta</option></select><button class="card-delete" onclick="App.deleteTask(' + task.id + ')">×</button></div>'; 
+    return div; 
+  },
   updateProgressRings() {
     const total = this.data.tasks.length || 1;
     const done = this.data.tasks.filter(t => t.status === 'done').length;
