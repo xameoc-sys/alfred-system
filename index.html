@@ -282,6 +282,11 @@
         <button type="submit" class="btn btn-primary" style="width:100%;margin-top:16px;">Crear Cuenta</button>
       </form>
       <p class="login-register" id="showLogin" style="display:none;">¿Ya tienes cuenta? <a href="#">Inicia Sesión</a></p>
+      <div id="confirmSection" style="display:none;">
+        <p style="margin-top:24px;color:var(--text-secondary);">Se envió un código de confirmación a <span id="confirmEmail" style="font-weight:600;"></span></p>
+        <div class="form-group" style="margin-top:16px;"><input type="text" class="form-input" id="confirmCode" placeholder="Código de confirmación" required></div>
+        <button class="btn btn-primary" style="width:100%;margin-top:16px;" onclick="App.confirmEmail()">Confirmar</button>
+      </div>
     </div>
   </div>
   <div class="app-container" id="mainApp" style="display:none;">
@@ -468,6 +473,7 @@ const App = {
   login() {
     const username = document.getElementById('loginUsername').value;
     const password = document.getElementById('loginPassword').value;
+    // Try local first, then API
     const user = this.data.users.find(u => u.username === username && u.password === password);
     if (user) {
       this.data.currentUser = user;
@@ -475,23 +481,85 @@ const App = {
       this.checkLogin();
       this.render();
     } else {
-      alert('Usuario o contraseña incorrectos');
+      // Try API login
+      fetch('https://your-api-url.com/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.user) {
+          this.data.currentUser = data.user;
+          this.data.users.push(data.user);
+          this.save();
+          this.checkLogin();
+          this.render();
+        } else {
+          alert(data.detail || 'Usuario o contraseña incorrectos');
+        }
+      })
+      .catch(() => {
+        alert('Usuario o contraseña incorrectos');
+      });
     }
   },
   register() {
     const username = document.getElementById('registerUsername').value;
     const email = document.getElementById('registerEmail').value;
     const password = document.getElementById('registerPassword').value;
+    // Try local first
     if (this.data.users.find(u => u.username === username)) {
       alert('El usuario ya existe');
       return;
     }
-    const newUser = { id: Date.now(), username, email, password, role: 'user', isAdmin: false };
-    this.data.users.push(newUser);
-    this.data.currentUser = newUser;
-    this.save();
-    this.checkLogin();
-    this.render();
+    // Call API for registration with email confirmation
+    fetch('https://your-api-url.com/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, email, password })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.email) {
+        // Show confirmation modal
+        this.pendingEmail = email;
+        document.getElementById('registerForm').style.display = 'none';
+        document.getElementById('showLogin').parentElement.style.display = 'none';
+        document.getElementById('confirmSection').style.display = 'block';
+        document.getElementById('confirmEmail').textContent = email;
+      } else {
+        alert(data.detail || 'Error al registrar');
+      }
+    })
+    .catch(() => {
+      // Fallback to local if API not available
+      const newUser = { id: Date.now(), username, email, password, role: 'user', isAdmin: false };
+      this.data.users.push(newUser);
+      this.data.currentUser = newUser;
+      this.save();
+      this.checkLogin();
+      this.render();
+    });
+  },
+  confirmEmail() {
+    const code = document.getElementById('confirmCode').value;
+    fetch('https://your-api-url.com/api/confirm', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: this.pendingEmail, code })
+    })
+    .then(res => res.json())
+    .then(data => {
+      alert('Cuenta confirmada. Ahora puedes iniciar sesión.');
+      this.pendingEmail = null;
+      document.getElementById('confirmSection').style.display = 'none';
+      document.getElementById('loginForm').style.display = 'block';
+      document.getElementById('showRegister').parentElement.style.display = 'block';
+    })
+    .catch(() => {
+      alert('Código incorrecto o expirado');
+    });
   },
   logout() {
     this.data.currentUser = null;
