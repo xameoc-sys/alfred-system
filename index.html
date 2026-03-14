@@ -482,7 +482,7 @@ const App = {
       this.render();
     } else {
       // Try API login
-      fetch('https://your-api-url.com/api/login', {
+      fetch('http://localhost:8000/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -514,7 +514,7 @@ const App = {
       return;
     }
     // Call API for registration with email confirmation
-    fetch('https://your-api-url.com/api/register', {
+    fetch('http://localhost:8000/api/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, email, password })
@@ -544,7 +544,7 @@ const App = {
   },
   confirmEmail() {
     const code = document.getElementById('confirmCode').value;
-    fetch('https://your-api-url.com/api/confirm', {
+    fetch('http://localhost:8000/api/confirm', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: this.pendingEmail, code })
