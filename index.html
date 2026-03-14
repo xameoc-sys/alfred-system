@@ -12,6 +12,16 @@
     :root { --bg-primary: #ededed; --bg-secondary: #ffffff; --bg-tertiary: #9c9c9c; --glass-bg: rgba(0,0,0,0.03); --glass-border: rgba(0,0,0,0.15); --accent-platinum: #656565; --accent-blue: #0089cb; --accent-gold: #9c9c9c; --text-primary: #000000; --text-secondary: #656565; --text-tertiary: #9c9c9c; --kanban-progress: #0089cb; --shadow-medium: 0 4px 16px rgba(0,0,0,0.1); --shadow-elevated: 0 8px 32px rgba(0,0,0,0.15); --glow-blue: 0 4px 20px rgba(0,137,203,0.15); --priority-high: #ff0000; --priority-medium: #ffcc00; --priority-low: #00cc00; }
     html { font-size: 16px; scroll-behavior: smooth; }
     body { font-family: 'Outfit', sans-serif; background: #ededed; color: var(--text-primary); min-height: 100vh; overflow-x: hidden; line-height: 1.6; }
+    /* Login Screen */
+    .login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+    .login-container { background: var(--bg-secondary); padding: 48px; border-radius: 24px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+    .login-logo { margin-bottom: 16px; }
+    .login-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 700; margin-bottom: 8px; }
+    .login-subtitle { color: var(--text-secondary); margin-bottom: 32px; }
+    .login-form { text-align: left; }
+    .login-register { margin-top: 24px; color: var(--text-secondary); font-size: 0.875rem; }
+    .login-register a { color: var(--accent-blue); text-decoration: none; }
+    .login-register a:hover { text-decoration: underline; }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: var(--bg-secondary); }
     ::-webkit-scrollbar-thumb { background: var(--text-tertiary); border-radius: 3px; }
@@ -34,6 +44,8 @@
     .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue)); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; color: var(--bg-primary); }
     .user-name { font-weight: 500; font-size: 0.9375rem; }
     .user-role { font-size: 0.75rem; color: var(--text-tertiary); }
+    .logout-btn { background: transparent; border: 1px solid var(--glass-border); border-radius: 8px; padding: 6px 12px; font-size: 0.75rem; color: var(--text-secondary); cursor: pointer; margin-top: 8px; width: 100%; transition: all 0.2s; }
+    .logout-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
     .main-content { flex: 1; margin-left: 280px; padding: 32px 40px; min-height: 100vh; animation: fadeIn 0.6s ease-out 0.2s both; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
@@ -251,7 +263,28 @@
   </style>
 </head>
 <body>
-  <div class="app-container">
+  <!-- Login Screen -->
+  <div class="login-screen" id="loginScreen">
+    <div class="login-container">
+      <div class="login-logo"><img src="logo-m.jpg" alt="Mattera" class="logo-icon" style="width:80px;height:80px;"></div>
+      <h1 class="login-title">Mattera</h1>
+      <p class="login-subtitle">Centro de Comando Personal</p>
+      <form class="login-form" id="loginForm">
+        <div class="form-group"><input type="text" class="form-input" id="loginUsername" placeholder="Usuario" required></div>
+        <div class="form-group"><input type="password" class="form-input" id="loginPassword" placeholder="Contraseña" required></div>
+        <button type="submit" class="btn btn-primary" style="width:100%;margin-top:16px;">Iniciar Sesión</button>
+      </form>
+      <p class="login-register">¿No tienes cuenta? <a href="#" id="showRegister">Regístrate</a></p>
+      <form class="login-form" id="registerForm" style="display:none;">
+        <div class="form-group"><input type="text" class="form-input" id="registerUsername" placeholder="Usuario" required></div>
+        <div class="form-group"><input type="email" class="form-input" id="registerEmail" placeholder="Email" required></div>
+        <div class="form-group"><input type="password" class="form-input" id="registerPassword" placeholder="Contraseña" required></div>
+        <button type="submit" class="btn btn-primary" style="width:100%;margin-top:16px;">Crear Cuenta</button>
+      </form>
+      <p class="login-register" id="showLogin" style="display:none;">¿Ya tienes cuenta? <a href="#">Inicia Sesión</a></p>
+    </div>
+  </div>
+  <div class="app-container" id="mainApp" style="display:none;">
     <aside class="sidebar">
       <div class="logo"><img src="logo-m.jpg" alt="Mattera" class="logo-icon"><span class="logo-text">Mattera</span></div>
       <nav class="nav-section">
@@ -267,7 +300,7 @@
       <div class="sidebar-footer">
         <div class="user-profile">
           <div class="user-avatar">M</div>
-          <div class="user-info"><div class="user-name">Alexander</div><div class="user-role">Fundador</div></div>
+          <div class="user-info"><div class="user-name" id="currentUserName">Usuario</div><div class="user-role" id="currentUserRole">Usuario</div><button class="logout-btn" onclick="App.logout()">Cerrar Sesión</button></div>
         </div>
       </div>
     </aside>
@@ -415,10 +448,70 @@
   </div>
   <script>
 const App = {
-  data: { tasks: [], goals: [], weekCompleted: 0, weekTotal: 7, suggestedTasks: [], journal: [], groups: [], groupTasks: [] },
+  data: { tasks: [], goals: [], weekCompleted: 0, weekTotal: 7, suggestedTasks: [], journal: [], groups: [], groupTasks: [], users: [], currentUser: null },
   currentView: 'dashboard',
-  init() { this.load(); this.bindEvents(); this.render(); },
-  load() { const saved = localStorage.getItem('alfred-data'); if (saved) { const parsed = JSON.parse(saved); this.data = { ...this.data, ...parsed }; } },
+  init() { 
+    this.load(); 
+    this.checkLogin(); 
+    this.bindEvents(); 
+    if (this.data.currentUser) { this.render(); }
+  },
+  checkLogin() {
+    if (this.data.currentUser) {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('mainApp').style.display = 'flex';
+    } else {
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('mainApp').style.display = 'none';
+    }
+  },
+  login() {
+    const username = document.getElementById('loginUsername').value;
+    const password = document.getElementById('loginPassword').value;
+    const user = this.data.users.find(u => u.username === username && u.password === password);
+    if (user) {
+      this.data.currentUser = user;
+      this.save();
+      this.checkLogin();
+      this.render();
+    } else {
+      alert('Usuario o contraseña incorrectos');
+    }
+  },
+  register() {
+    const username = document.getElementById('registerUsername').value;
+    const email = document.getElementById('registerEmail').value;
+    const password = document.getElementById('registerPassword').value;
+    if (this.data.users.find(u => u.username === username)) {
+      alert('El usuario ya existe');
+      return;
+    }
+    const newUser = { id: Date.now(), username, email, password, role: 'user', isAdmin: false };
+    this.data.users.push(newUser);
+    this.data.currentUser = newUser;
+    this.save();
+    this.checkLogin();
+    this.render();
+  },
+  logout() {
+    this.data.currentUser = null;
+    this.save();
+    this.checkLogin();
+    document.getElementById('loginUsername').value = '';
+    document.getElementById('loginPassword').value = '';
+  },
+  load() { 
+    const saved = localStorage.getItem('alfred-data'); 
+    if (saved) { 
+      const parsed = JSON.parse(saved); 
+      this.data = { ...this.data, ...parsed }; 
+    }
+    // Create default admin if no users
+    if (!this.data.users || this.data.users.length === 0) {
+      this.data.users = [{ id: 1, username: 'admin', email: 'admin@mattera.com', password: 'admin123', role: 'admin', isAdmin: true }];
+      this.save();
+    }
+  },
   save() { localStorage.setItem('alfred-data', JSON.stringify(this.data)); },
   switchView(view) {
     this.currentView = view;
@@ -431,6 +524,11 @@ const App = {
     this.render();
   },
   bindEvents() {
+    // Login/Register events
+    document.getElementById('loginForm').addEventListener('submit', (e) => { e.preventDefault(); this.login(); });
+    document.getElementById('registerForm').addEventListener('submit', (e) => { e.preventDefault(); this.register(); });
+    document.getElementById('showRegister').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('loginForm').style.display = 'none'; document.getElementById('showRegister').parentElement.style.display = 'none'; document.getElementById('registerForm').style.display = 'block'; document.getElementById('showLogin').parentElement.style.display = 'block'; });
+    document.getElementById('showLogin').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('registerForm').style.display = 'none'; document.getElementById('showLogin').parentElement.style.display = 'none'; document.getElementById('loginForm').style.display = 'block'; document.getElementById('showRegister').parentElement.style.display = 'block'; });
     document.getElementById('quickAddBtn').addEventListener('click', () => this.openModal('todo'));
     document.querySelectorAll('.add-card-btn').forEach(btn => btn.addEventListener('click', () => this.openModal(btn.dataset.status)));
     document.getElementById('modalClose').addEventListener('click', () => this.closeModal());
@@ -695,6 +793,11 @@ const App = {
     document.addEventListener('dragend', (e) => { if (e.target.classList.contains('kanban-card')) { e.target.style.opacity = '1'; draggedItem = null; } });
   },
   render() {
+    // Update user info
+    if (this.data.currentUser) {
+      document.getElementById('currentUserName').textContent = this.data.currentUser.username;
+      document.getElementById('currentUserRole').textContent = this.data.currentUser.isAdmin ? 'Administrador' : 'Usuario';
+    }
     const counts = { todo: 0, progress: 0, done: 0, archive: 0 };
     document.querySelectorAll('.column-cards').forEach(col => col.innerHTML = '');
     this.data.tasks.forEach(task => { counts[task.status]++; });
