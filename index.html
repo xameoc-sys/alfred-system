@@ -258,6 +258,19 @@
     .group-tasks { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--glass-border); }
     .group-tasks-title { font-size: 0.875rem; font-weight: 600; margin-bottom: 12px; color: var(--text-secondary); }
     .group-empty { text-align: center; padding: 40px; color: var(--text-tertiary); }
+    /* Admin styles */
+    .admin-container { max-width: 800px; }
+    .admin-user-card { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: 12px; margin-bottom: 12px; }
+    .admin-user-info { display: flex; align-items: center; gap: 16px; }
+    .admin-user-avatar { width: 48px; height: 48px; background: var(--accent-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 1.25rem; }
+    .admin-user-details { }
+    .admin-user-name { font-weight: 600; font-size: 1rem; }
+    .admin-user-email { font-size: 0.8rem; color: var(--text-secondary); }
+    .admin-user-role { font-size: 0.75rem; padding: 4px 10px; border-radius: 12px; background: var(--bg-tertiary); }
+    .admin-user-role.admin { background: rgba(0,137,203,0.2); color: var(--accent-blue); }
+    .admin-user-actions { display: flex; gap: 8px; }
+    .admin-make-admin-btn { background: var(--accent-blue); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; }
+    .admin-remove-admin-btn { background: transparent; border: 1px solid var(--glass-border); color: var(--text-secondary); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; }
     @media (max-width: 1200px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .kanban-board { grid-template-columns: repeat(2, 1fr); } .goals-grid { grid-template-columns: 1fr; } }
     @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .main-content { margin-left: 0; padding: 20px; } .stats-grid { grid-template-columns: 1fr; } .kanban-board { grid-template-columns: 1fr; }  }
   </style>
@@ -300,6 +313,7 @@
         <div class="nav-item" data-view="journal"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Diario</div>
         <div class="nav-item" data-view="calendar"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Calendario</div>
         <div class="nav-item" data-view="groups"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Grupos</div>
+        <div class="nav-item admin-nav" data-view="admin" style="display:none;"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Admin</div>
       </nav>
       <button class="quick-add" id="quickAddBtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nueva Tarea</button>
       <div class="sidebar-footer">
@@ -375,6 +389,11 @@
         <header class="page-header"><div><h1 class="page-title">Grupos de Trabajo</h1><p class="page-subtitle">Gestiona equipos y tareas</p></div><button class="add-goal-btn" id="newGroupBtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nuevo Grupo</button></header>
         <div class="groups-container" id="groupsContainer"></div>
       </section>
+      <!-- Admin View -->
+      <section class="view-section" id="view-admin">
+        <header class="page-header"><div><h1 class="page-title">Administración</h1><p class="page-subtitle">Gestiona usuarios del sistema</p></div></header>
+        <div class="admin-container" id="adminContainer"></div>
+      </section>
     </main>
   </div>
 
@@ -430,7 +449,7 @@
       <div class="modal-header"><h2 class="modal-title" id="groupModalTitle">Nuevo Grupo</h2><button class="modal-close" id="groupModalClose">×</button></div>
       <form id="groupForm">
         <div class="form-group"><label class="form-label">Nombre del Grupo</label><input type="text" class="form-input" id="groupName" required placeholder="Ej: Desarrollo, Marketing..."></div>
-        <div class="form-group"><label class="form-label">Agregar Miembros</label><input type="text" class="form-input" id="groupMember" placeholder="Nombre del miembro (Enter para agregar)"></div>
+        <div class="form-group"><label class="form-label">Agregar Miembros</label><select class="form-select" id="groupMemberSelect"><option value="">Seleccionar usuario...</option></select><button type="button" class="btn btn-secondary" style="margin-top:8px;" onclick="App.addGroupMemberFromSelect()">Agregar</button></div>
         <div class="group-members-list" id="groupMembersList"></div>
         <div class="modal-actions"><button type="button" class="btn btn-secondary" id="groupModalCancel">Cancelar</button><button type="submit" class="btn btn-primary">Crear Grupo</button></div>
       </form>
@@ -587,7 +606,7 @@ const App = {
     document.getElementById('view-' + view).classList.add('active');
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
     document.querySelector('.nav-item[data-view="' + view + '"]').classList.add('active');
-    const titles = { dashboard: 'Dashboard', goals: 'Objetivos', pendientes: 'Pendientes', journal: 'Diario', calendar: 'Calendario', groups: 'Grupos de Trabajo' };
+    const titles = { dashboard: 'Dashboard', goals: 'Objetivos', pendientes: 'Pendientes', journal: 'Diario', calendar: 'Calendario', groups: 'Grupos de Trabajo', admin: 'Administración' };
     document.querySelector('.page-title').textContent = titles[view] || 'Dashboard';
     this.render();
   },
@@ -626,7 +645,6 @@ const App = {
     document.getElementById('groupModalClose').addEventListener('click', () => this.closeGroupModal());
     document.getElementById('groupModalCancel').addEventListener('click', () => this.closeGroupModal());
     document.getElementById('groupForm').addEventListener('submit', (e) => { e.preventDefault(); this.saveGroup(); });
-    document.getElementById('groupMember').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); this.addGroupMember(); } });
     document.getElementById('groupTaskModalClose').addEventListener('click', () => this.closeGroupTaskModal());
     document.getElementById('groupTaskModalCancel').addEventListener('click', () => this.closeGroupTaskModal());
     document.getElementById('groupTaskForm').addEventListener('submit', (e) => { e.preventDefault(); this.saveGroupTask(); });
@@ -775,17 +793,40 @@ const App = {
     return templates.map((t, i) => ({ ...t, id: baseId + i, goalId: goal.id, status: 'todo', dueDate: '', createdAt: new Date().toISOString() }));
   },
   // Groups functions
-  openGroupModal() { this.groupMembers = []; document.getElementById('groupModalTitle').textContent = 'Nuevo Grupo'; document.getElementById('groupForm').reset(); document.getElementById('groupMembersList').innerHTML = ''; document.getElementById('groupModal').classList.add('active'); document.getElementById('groupName').focus(); },
+  openGroupModal() { 
+    this.groupMembers = []; 
+    document.getElementById('groupModalTitle').textContent = 'Nuevo Grupo'; 
+    document.getElementById('groupForm').reset(); 
+    document.getElementById('groupMembersList').innerHTML = ''; 
+    // Populate user dropdown
+    const select = document.getElementById('groupMemberSelect');
+    select.innerHTML = '<option value="">Seleccionar usuario...</option>';
+    this.data.users.forEach(u => {
+      select.innerHTML += '<option value="' + u.username + '">' + u.username + '</option>';
+    });
+    document.getElementById('groupModal').classList.add('active'); 
+    document.getElementById('groupName').focus(); 
+  },
+  addGroupMemberFromSelect() {
+    const select = document.getElementById('groupMemberSelect');
+    const username = select.value;
+    if (username && !this.groupMembers.includes(username)) {
+      this.groupMembers.push(username);
+      this.renderGroupMembersList();
+      select.value = '';
+    }
+  },
   closeGroupModal() { document.getElementById('groupModal').classList.remove('active'); this.groupMembers = []; this.editingGroupId = null; },
   addGroupMember() { const input = document.getElementById('groupMember'); const name = input.value.trim(); if (name) { this.groupMembers.push(name); const div = document.createElement('div'); div.className = 'group-member'; div.innerHTML = name + '<span class="group-member-remove" onclick="App.removeGroupMember(' + (this.groupMembers.length - 1) + ')">×</span>'; document.getElementById('groupMembersList').appendChild(div); input.value = ''; } },
   removeGroupMember(index) { this.groupMembers.splice(index, 1); this.renderGroupMembersList(); },
   renderGroupMembersList() { const list = document.getElementById('groupMembersList'); list.innerHTML = ''; this.groupMembers.forEach((m, i) => { const div = document.createElement('div'); div.className = 'group-member'; div.innerHTML = m + '<span class="group-member-remove" onclick="App.removeGroupMember(' + i + ')">×</span>'; list.appendChild(div); }); },
   saveGroup() { const name = document.getElementById('groupName').value; this.data.groups.push({ id: Date.now(), name: name, members: [...this.groupMembers] }); this.save(); this.closeGroupModal(); this.render(); },
-  editGroup(id) { const group = this.data.groups.find(g => g.id === id); if (!group) return; this.groupMembers = [...(group.members || [])]; this.editingGroupId = id; document.getElementById('groupModalTitle').textContent = 'Editar Grupo'; document.getElementById('groupForm').reset(); document.getElementById('groupName').value = group.name; this.renderGroupMembersList(); document.getElementById('groupModal').classList.add('active'); document.getElementById('groupName').focus(); },
+  editGroup(id) { const group = this.data.groups.find(g => g.id === id); if (!group) return; this.groupMembers = [...(group.members || [])]; this.editingGroupId = id; document.getElementById('groupModalTitle').textContent = 'Editar Grupo'; document.getElementById('groupForm').reset(); document.getElementById('groupName').value = group.name; this.renderGroupMembersList(); const select = document.getElementById('groupMemberSelect'); select.innerHTML = '<option value="">Seleccionar usuario...</option>'; this.data.users.forEach(u => { select.innerHTML += '<option value="' + u.username + '">' + u.username + '</option>'; }); document.getElementById('groupModal').classList.add('active'); document.getElementById('groupName').focus(); },
   saveEditedGroup() { const name = document.getElementById('groupName').value; const group = this.data.groups.find(g => g.id === this.editingGroupId); if (group) { group.name = name; group.members = [...this.groupMembers]; } this.save(); this.closeGroupModal(); this.render(); },
   saveGroup() { if (this.editingGroupId) { this.saveEditedGroup(); } else { const name = document.getElementById('groupName').value; this.data.groups.push({ id: Date.now(), name: name, members: [...this.groupMembers] }); this.save(); this.closeGroupModal(); this.render(); } },
   deleteGroup(id) { if (confirm('¿Eliminar este grupo?')) { this.data.groups = this.data.groups.filter(g => g.id !== id); this.data.groupTasks = this.data.groupTasks.filter(t => t.groupId !== id); this.save(); this.render(); } },
-  openGroupTaskModal(groupId) { this.currentGroupId = groupId; const group = this.data.groups.find(g => g.id === groupId); const assigneeSelect = document.getElementById('groupTaskAssignee'); assigneeSelect.innerHTML = '<option value="">Sin asignar</option>'; if (group && group.members) { group.members.forEach(m => { assigneeSelect.innerHTML += '<option value="' + m + '">' + m + '</option>'; }); } document.getElementById('groupTaskForm').reset(); document.getElementById('groupTaskModal').classList.add('active'); document.getElementById('groupTaskTitle').focus(); },
+  openGroupTaskModal(groupId) { this.currentGroupId = groupId; const group = this.data.groups.find(g => g.id === groupId); const assigneeSelect = document.getElementById('groupTaskAssignee'); assigneeSelect.innerHTML = '<option value="">Asignación pendiente</option>'; // Show all registered users
+    this.data.users.forEach(u => { assigneeSelect.innerHTML += '<option value="' + u.username + '">' + u.username + '</option>'; }); document.getElementById('groupTaskForm').reset(); document.getElementById('groupTaskModal').classList.add('active'); document.getElementById('groupTaskTitle').focus(); },
   closeGroupTaskModal() { document.getElementById('groupTaskModal').classList.remove('active'); this.currentGroupId = null; },
   saveGroupTask() { const task = { id: Date.now(), groupId: this.currentGroupId, title: document.getElementById('groupTaskTitle').value, description: document.getElementById('groupTaskDescription').value, priority: document.getElementById('groupTaskPriority').value, dueDate: document.getElementById('groupTaskDueDate').value, assignee: document.getElementById('groupTaskAssignee').value, status: 'todo', createdAt: new Date().toISOString() }; this.data.groupTasks.push(task); this.save(); this.closeGroupTaskModal(); this.render(); },
   deleteGroupTask(id) { this.data.groupTasks = this.data.groupTasks.filter(t => t.id !== id); this.save(); this.render(); },
@@ -804,6 +845,26 @@ const App = {
       div.innerHTML = '<div class="group-header"><span class="group-title">' + group.name + '</span><div class="goal-actions"><button class="goal-action-btn" onclick="App.openGroupTaskModal(' + group.id + ')">➕</button><button class="goal-action-btn" onclick="App.editGroup(' + group.id + ')">✏️</button><button class="goal-action-btn delete" onclick="App.deleteGroup(' + group.id + ')">🗑️</button></div></div><div class="group-members">' + membersHtml + '</div>' + (tasksHtml ? '<div class="group-tasks"><div class="group-tasks-title">Tareas</div>' + tasksHtml + '</div>' : '<div class="group-empty" style="padding:20px">No hay tareas</div>');
       container.appendChild(div);
     });
+  },
+  renderAdmin() {
+    const container = document.getElementById('adminContainer');
+    if (!this.data.currentUser || !this.data.currentUser.isAdmin) { container.innerHTML = '<div class="group-empty">No tienes acceso a esta sección</div>'; return; }
+    if (this.data.users.length === 0) { container.innerHTML = '<div class="group-empty">No hay usuarios registrados</div>'; return; }
+    container.innerHTML = '';
+    this.data.users.forEach(user => {
+      const div = document.createElement('div');
+      div.className = 'admin-user-card';
+      div.innerHTML = '<div class="admin-user-info"><div class="admin-user-avatar">' + user.username.charAt(0).toUpperCase() + '</div><div class="admin-user-details"><div class="admin-user-name">' + user.username + '</div><div class="admin-user-email">' + (user.email || 'Sin email') + '</div></div></div><div class="admin-user-actions"><span class="admin-user-role ' + (user.isAdmin ? 'admin' : '') + '">' + (user.isAdmin ? 'Administrador' : 'Usuario') + '</span>' + (user.id !== this.data.currentUser.id ? (user.isAdmin ? '<button class="admin-remove-admin-btn" onclick="App.removeAdmin(' + user.id + ')">Quitar Admin</button>' : '<button class="admin-make-admin-btn" onclick="App.makeAdmin(' + user.id + ')">Hacer Admin</button>') : '') + '</div>';
+      container.appendChild(div);
+    });
+  },
+  makeAdmin(userId) {
+    const user = this.data.users.find(u => u.id === userId);
+    if (user) { user.isAdmin = true; this.save(); this.render(); }
+  },
+  removeAdmin(userId) {
+    const user = this.data.users.find(u => u.id === userId);
+    if (user) { user.isAdmin = false; this.save(); this.render(); }
   },
   openGroupTaskDetail(taskId) {
     const task = this.data.groupTasks.find(t => t.id === taskId);
@@ -865,6 +926,10 @@ const App = {
     if (this.data.currentUser) {
       document.getElementById('currentUserName').textContent = this.data.currentUser.username;
       document.getElementById('currentUserRole').textContent = this.data.currentUser.isAdmin ? 'Administrador' : 'Usuario';
+      // Show/hide admin nav
+      document.querySelectorAll('.admin-nav').forEach(el => {
+        el.style.display = this.data.currentUser.isAdmin ? 'flex' : 'none';
+      });
     }
     const counts = { todo: 0, progress: 0, done: 0, archive: 0 };
     document.querySelectorAll('.column-cards').forEach(col => col.innerHTML = '');
@@ -881,6 +946,7 @@ const App = {
     this.renderPendientes();
     this.renderCalendar();
     this.renderGroups();
+    this.renderAdmin();
     this.updateProgressRings();
   },
   renderPendientes() {
