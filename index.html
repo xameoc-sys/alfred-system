@@ -187,6 +187,24 @@
       .journal-entry-date { font-size: 0.875rem; }
       .journal-entry-content { font-size: 0.875rem; }
     }
+    /* Calendar styles */
+    .calendar-container { background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: 16px; padding: 24px; }
+    .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .calendar-month { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 600; }
+    .calendar-nav { background: transparent; border: 1px solid var(--glass-border); border-radius: 8px; padding: 8px 16px; font-size: 1.25rem; cursor: pointer; color: var(--text-secondary); transition: all 0.2s; }
+    .calendar-nav:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+    .calendar-day-header { text-align: center; font-size: 0.75rem; font-weight: 600; color: var(--text-tertiary); padding: 8px 0; text-transform: uppercase; }
+    .calendar-day { min-height: 80px; background: var(--bg-tertiary); border-radius: 8px; padding: 8px; cursor: pointer; transition: all 0.2s; }
+    .calendar-day:hover { background: var(--glass-bg); }
+    .calendar-day.other-month { opacity: 0.3; }
+    .calendar-day.today { border: 2px solid var(--accent-blue); }
+    .calendar-day-number { font-weight: 600; font-size: 0.875rem; margin-bottom: 4px; }
+    .calendar-day-tasks { display: flex; flex-direction: column; gap: 4px; }
+    .calendar-task { font-size: 0.7rem; padding: 2px 6px; background: var(--accent-blue); color: white; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .calendar-task.high { background: var(--priority-high); }
+    .calendar-task.medium { background: var(--priority-medium); color: #000; }
+    .calendar-task.low { background: var(--priority-low); }
     @media (max-width: 1200px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .kanban-board { grid-template-columns: repeat(2, 1fr); } .goals-grid { grid-template-columns: 1fr; } }
     @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .main-content { margin-left: 0; padding: 20px; } .stats-grid { grid-template-columns: 1fr; } .kanban-board { grid-template-columns: 1fr; }  }
   </style>
@@ -201,6 +219,7 @@
         <div class="nav-item" data-view="goals"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Objetivos</div>
         <div class="nav-item" data-view="kanban"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>Kanban</div>
         <div class="nav-item" data-view="journal"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Diario</div>
+        <div class="nav-item" data-view="calendar"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Calendario</div>
       </nav>
       <button class="quick-add" id="quickAddBtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nueva Tarea</button>
       <div class="sidebar-footer">
@@ -253,6 +272,18 @@
         <header class="page-header"><div><h1 class="page-title">Diario</h1><p class="page-subtitle">Registra tu día</p></div><button class="add-goal-btn" id="newEntryBtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nueva Entrada</button></header>
         <div class="journal-container">
           <div class="journal-entries" id="journalEntries"></div>
+        </div>
+      </section>
+      <!-- Calendar View -->
+      <section class="view-section" id="view-calendar">
+        <header class="page-header"><div><h1 class="page-title">Calendario</h1><p class="page-subtitle">Tus tareas por fecha</p></div></header>
+        <div class="calendar-container">
+          <div class="calendar-header">
+            <button class="calendar-nav" id="prevMonth">‹</button>
+            <span class="calendar-month" id="calendarMonth"></span>
+            <button class="calendar-nav" id="nextMonth">›</button>
+          </div>
+          <div class="calendar-grid" id="calendarGrid"></div>
         </div>
       </section>
     </main>
@@ -311,7 +342,7 @@ const App = {
     document.getElementById('view-' + view).classList.add('active');
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
     document.querySelector('.nav-item[data-view="' + view + '"]').classList.add('active');
-    const titles = { dashboard: 'Dashboard', goals: 'Objetivos', kanban: 'Kanban', journal: 'Diario' };
+    const titles = { dashboard: 'Dashboard', goals: 'Objetivos', kanban: 'Kanban', journal: 'Diario', calendar: 'Calendario' };
     document.querySelector('.page-title').textContent = titles[view] || 'Dashboard';
     this.render();
   },
@@ -333,6 +364,10 @@ const App = {
     document.getElementById('journalModalClose').addEventListener('click', () => this.closeJournalModal());
     document.getElementById('journalModalCancel').addEventListener('click', () => this.closeJournalModal());
     document.getElementById('journalForm').addEventListener('submit', (e) => { e.preventDefault(); this.saveJournal(); });
+    // Calendar events
+    this.calendarDate = new Date();
+    document.getElementById('prevMonth').addEventListener('click', () => { this.calendarDate.setMonth(this.calendarDate.getMonth() - 1); this.renderCalendar(); });
+    document.getElementById('nextMonth').addEventListener('click', () => { this.calendarDate.setMonth(this.calendarDate.getMonth() + 1); this.renderCalendar(); });
     this.setupDragDrop();
   },
   openModal(status) { 
@@ -409,6 +444,41 @@ const App = {
       container.appendChild(div);
     });
   },
+  renderCalendar() {
+    const grid = document.getElementById('calendarGrid');
+    const monthLabel = document.getElementById('calendarMonth');
+    const year = this.calendarDate.getFullYear();
+    const month = this.calendarDate.getMonth();
+    const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    monthLabel.textContent = monthNames[month] + ' ' + year;
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const today = new Date();
+    let html = '';
+    const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+    days.forEach(d => html += '<div class="calendar-day-header">' + d + '</div>');
+    const prevMonthDays = new Date(year, month, 0).getDate();
+    for (let i = firstDay - 1; i >= 0; i--) {
+      const day = prevMonthDays - i;
+      html += '<div class="calendar-day other-month"><div class="calendar-day-number">' + day + '</div></div>';
+    }
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+      const isToday = today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
+      const tasksForDay = this.data.tasks.filter(t => t.dueDate === dateStr);
+      let tasksHtml = '';
+      tasksForDay.slice(0, 3).forEach(task => {
+        tasksHtml += '<div class="calendar-task ' + task.priority + '" title="' + task.title + '">' + task.title + '</div>';
+      });
+      if (tasksForDay.length > 3) tasksHtml += '<div class="calendar-task" style="background:var(--text-secondary)">+' + (tasksForDay.length - 3) + '</div>';
+      html += '<div class="calendar-day' + (isToday ? ' today' : '') + '"><div class="calendar-day-number">' + day + '</div><div class="calendar-day-tasks">' + tasksHtml + '</div></div>';
+    }
+    const remainingCells = 42 - (firstDay + daysInMonth);
+    for (let i = 1; i <= remainingCells; i++) {
+      html += '<div class="calendar-day other-month"><div class="calendar-day-number">' + i + '</div></div>';
+    }
+    grid.innerHTML = html;
+  },
   generateSuggestedTasks(goal) {
     const templates = [
       { title: 'Investigar sobre ' + goal.title, description: 'Recopila información relevante', priority: 'high' },
@@ -462,6 +532,7 @@ const App = {
     this.renderGoals();
     this.renderSuggestedTasks();
     this.renderJournal();
+    this.renderCalendar();
     this.updateProgressRings();
   },
   renderGoals() {
