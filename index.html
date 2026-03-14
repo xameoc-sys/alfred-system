@@ -162,6 +162,17 @@
     .suggested-task { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--bg-tertiary); border-radius: 10px; cursor: grab; transition: all 0.2s; }
     .suggested-task:hover { background: var(--glass-bg); }
     .suggested-task-btn { background: transparent; border: none; color: var(--accent-gold); cursor: pointer; font-size: 18px; padding: 4px; }
+    /* Journal styles */
+    .journal-container { max-width: 800px; }
+    .journal-entries { display: flex; flex-direction: column; gap: 20px; }
+    .journal-entry { background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: 16px; padding: 24px; transition: all 0.3s ease; }
+    .journal-entry:hover { transform: translateY(-2px); box-shadow: var(--shadow-medium); }
+    .journal-entry-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .journal-entry-date { font-family: 'Playfair Display', serif; font-size: 1.125rem; font-weight: 600; color: var(--text-primary); }
+    .journal-entry-actions { display: flex; gap: 8px; }
+    .journal-entry-content { color: var(--text-secondary); font-size: 0.9375rem; line-height: 1.6; white-space: pre-wrap; }
+    .journal-entry-empty { text-align: center; padding: 60px 20px; color: var(--text-tertiary); }
+    .journal-entry-empty-icon { font-size: 48px; margin-bottom: 16px; }
     @media (max-width: 1200px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .kanban-board { grid-template-columns: repeat(2, 1fr); } .goals-grid { grid-template-columns: 1fr; } }
     @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .main-content { margin-left: 0; padding: 20px; } .stats-grid { grid-template-columns: 1fr; } .kanban-board { grid-template-columns: 1fr; }  }
   </style>
@@ -175,6 +186,7 @@
         <div class="nav-item active" data-view="dashboard"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</div>
         <div class="nav-item" data-view="goals"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Objetivos</div>
         <div class="nav-item" data-view="kanban"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>Kanban</div>
+        <div class="nav-item" data-view="journal"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Diario</div>
       </nav>
       <button class="quick-add" id="quickAddBtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nueva Tarea</button>
       <div class="sidebar-footer">
@@ -222,6 +234,13 @@
           <div class="kanban-column" data-status="archive"><div class="column-header"><div class="column-title"><span class="column-dot archive"></span>Archivo</div><span class="column-count" id="count-archive">0</span></div><div class="column-cards" id="cards-archive"></div></div>
         </div>
       </section>
+      <!-- Journal View -->
+      <section class="view-section" id="view-journal">
+        <header class="page-header"><div><h1 class="page-title">Diario</h1><p class="page-subtitle">Registra tu día</p></div><button class="add-goal-btn" id="newEntryBtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nueva Entrada</button></header>
+        <div class="journal-container">
+          <div class="journal-entries" id="journalEntries"></div>
+        </div>
+      </section>
     </main>
   </div>
 
@@ -254,9 +273,19 @@
       </form>
     </div>
   </div>
+  <div class="modal-overlay" id="journalModal">
+    <div class="modal">
+      <div class="modal-header"><h2 class="modal-title" id="journalModalTitle">Nueva Entrada</h2><button class="modal-close" id="journalModalClose">×</button></div>
+      <form id="journalForm">
+        <div class="form-group"><label class="form-label">Fecha</label><input type="date" class="form-input" id="journalDate"></div>
+        <div class="form-group"><label class="form-label">¿Qué hiciste hoy?</label><textarea class="form-textarea" id="journalContent" placeholder="Describe tu día, logros, aprendizajes, reflexiones..." style="min-height: 200px;"></textarea></div>
+        <div class="modal-actions"><button type="button" class="btn btn-secondary" id="journalModalCancel">Cancelar</button><button type="submit" class="btn btn-primary">Guardar</button></div>
+      </form>
+    </div>
+  </div>
   <script>
 const App = {
-  data: { tasks: [], goals: [], weekCompleted: 0, weekTotal: 7, suggestedTasks: [] },
+  data: { tasks: [], goals: [], weekCompleted: 0, weekTotal: 7, suggestedTasks: [], journal: [] },
   currentView: 'dashboard',
   init() { this.load(); this.bindEvents(); this.render(); },
   load() { const saved = localStorage.getItem('alfred-data'); if (saved) { const parsed = JSON.parse(saved); this.data = { ...this.data, ...parsed }; } },
@@ -267,7 +296,7 @@ const App = {
     document.getElementById('view-' + view).classList.add('active');
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
     document.querySelector('.nav-item[data-view="' + view + '"]').classList.add('active');
-    const titles = { dashboard: 'Dashboard', goals: 'Objetivos', kanban: 'Kanban' };
+    const titles = { dashboard: 'Dashboard', goals: 'Objetivos', kanban: 'Kanban', journal: 'Diario' };
     document.querySelector('.page-title').textContent = titles[view] || 'Dashboard';
     this.render();
   },
@@ -284,6 +313,11 @@ const App = {
     document.getElementById('goalForm').addEventListener('submit', (e) => { e.preventDefault(); this.saveGoal(); });
     // View navigation
     document.querySelectorAll('.nav-item').forEach(item => item.addEventListener('click', (e) => { this.switchView(e.currentTarget.dataset.view); }));
+    // Journal events
+    document.getElementById('newEntryBtn').addEventListener('click', () => this.openJournalModal());
+    document.getElementById('journalModalClose').addEventListener('click', () => this.closeJournalModal());
+    document.getElementById('journalModalCancel').addEventListener('click', () => this.closeJournalModal());
+    document.getElementById('journalForm').addEventListener('submit', (e) => { e.preventDefault(); this.saveJournal(); });
     this.setupDragDrop();
   },
   openModal(status) { 
@@ -311,6 +345,51 @@ const App = {
     const suggested = this.generateSuggestedTasks(goal);
     this.data.suggestedTasks = [...this.data.suggestedTasks, ...suggested];
     this.save(); this.closeGoalModal(); this.switchView('goals');
+  },
+  openJournalModal(entryId) { 
+    this.editingJournalId = entryId || null;
+    document.getElementById('journalModalTitle').textContent = entryId ? 'Editar Entrada' : 'Nueva Entrada';
+    if (entryId) {
+      const entry = this.data.journal.find(j => j.id === entryId);
+      if (entry) {
+        document.getElementById('journalDate').value = entry.date;
+        document.getElementById('journalContent').value = entry.content;
+      }
+    } else {
+      document.getElementById('journalDate').value = new Date().toISOString().split('T')[0];
+      document.getElementById('journalContent').value = '';
+    }
+    document.getElementById('journalModal').classList.add('active'); 
+    document.getElementById('journalContent').focus(); 
+  },
+  closeJournalModal() { document.getElementById('journalModal').classList.remove('active'); document.getElementById('journalForm').reset(); this.editingJournalId = null; },
+  saveJournal() {
+    const date = document.getElementById('journalDate').value;
+    const content = document.getElementById('journalContent').value;
+    if (this.editingJournalId) {
+      const entry = this.data.journal.find(j => j.id === this.editingJournalId);
+      if (entry) { entry.date = date; entry.content = content; }
+    } else {
+      this.data.journal.push({ id: Date.now(), date: date, content: content, createdAt: new Date().toISOString() });
+    }
+    this.data.journal.sort((a, b) => new Date(b.date) - new Date(a.date));
+    this.save(); this.closeJournalModal(); this.render();
+  },
+  editJournal(id) { this.openJournalModal(id); },
+  deleteJournal(id) { if (confirm('¿Eliminar esta entrada del diario?')) { this.data.journal = this.data.journal.filter(j => j.id !== id); this.save(); this.render(); } },
+  renderJournal() {
+    const container = document.getElementById('journalEntries');
+    if (this.data.journal.length === 0) {
+      container.innerHTML = '<div class="journal-entry-empty"><div class="journal-entry-empty-icon">📔</div><p>No hay entradas aún. ¡Escribe tu primera entrada!</p></div>';
+      return;
+    }
+    container.innerHTML = '';
+    this.data.journal.forEach(entry => {
+      const div = document.createElement('div');
+      div.className = 'journal-entry';
+      div.innerHTML = '<div class="journal-entry-header"><span class="journal-entry-date">' + new Date(entry.date).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + '</span><div class="journal-entry-actions"><button class="goal-action-btn" onclick="App.editJournal(' + entry.id + ')">✏️</button><button class="goal-action-btn delete" onclick="App.deleteJournal(' + entry.id + ')">🗑️</button></div></div><div class="journal-entry-content">' + entry.content + '</div>';
+      container.appendChild(div);
+    });
   },
   generateSuggestedTasks(goal) {
     const templates = [
@@ -364,6 +443,7 @@ const App = {
     document.getElementById('statDone').textContent = counts.done;
     this.renderGoals();
     this.renderSuggestedTasks();
+    this.renderJournal();
     this.updateProgressRings();
   },
   renderGoals() {
