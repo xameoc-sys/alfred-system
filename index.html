@@ -77,7 +77,7 @@
     .column-dot.archive { background: var(--text-tertiary); }
     .column-count { background: var(--bg-tertiary); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; color: var(--text-secondary); }
     .column-cards { flex: 1; display: flex; flex-direction: column; gap: 12px; }
-    .kanban-card { background: var(--bg-tertiary); border: 1px solid var(--glass-border); border-radius: 12px; padding: 16px; cursor: grab; transition: all 0.2s ease; }
+    .kanban-card { background: var(--bg-tertiary); border: 1px solid var(--glass-border); border-radius: 10px; padding: 12px; cursor: pointer; transition: all 0.2s ease; min-height: 40px; }
     .kanban-card:hover { transform: scale(1.02); box-shadow: var(--shadow-medium); border-color: var(--accent-blue); }
     .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
     .card-title { font-weight: 500; font-size: 0.9375rem; line-height: 1.4; }
@@ -655,8 +655,8 @@ const App = {
     div.className = 'kanban-card'; 
     div.draggable = true; 
     div.dataset.id = task.id; 
-    const goalName = task.goalId ? (this.data.goals.find(g => g.id === task.goalId)?.title || '') : '';
-    div.innerHTML = '<div class="card-header"><span class="card-title">' + task.title + '</span><span class="card-priority ' + task.priority + '"></span></div>' + (task.description ? '<div class="card-description">' + task.description + '</div>' : '') + '<div class="card-meta"><span>' + (task.dueDate || 'Sin fecha') + '</span>' + (goalName ? '<span class="card-goal">🎯 ' + goalName.substring(0, 15) + '</span>' : '') + '</div><div class="card-actions"><select class="card-priority-select" onchange="App.updateTaskPriority(' + task.id + ', this.value)"><option value="low" ' + (task.priority === 'low' ? 'selected' : '') + '>Baja</option><option value="medium" ' + (task.priority === 'medium' ? 'selected' : '') + '>Media</option><option value="high" ' + (task.priority === 'high' ? 'selected' : '') + '>Alta</option></select><button class="card-delete" onclick="App.deleteTask(' + task.id + ')">×</button></div>'; 
+    div.onclick = function() { App.openTaskDetail(task.id); };
+    div.innerHTML = '<div class="card-header"><span class="card-title">' + task.title + '</span><span class="card-priority ' + task.priority + '"></span></div>'; 
     return div; 
   },
   updateProgressRings() {
