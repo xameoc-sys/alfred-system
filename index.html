@@ -96,6 +96,18 @@
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 300; display: none; align-items: center; justify-content: center; animation: fadeIn 0.3s ease; }
     .modal-overlay.active { display: flex; }
     .modal { background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: 20px; padding: 32px; width: 90%; max-width: 500px; box-shadow: var(--shadow-elevated); animation: modalIn 0.3s ease-out; }
+    .task-detail-content { margin-bottom: 20px; }
+    .task-detail-row { margin-bottom: 16px; }
+    .task-detail-label { font-size: 0.75rem; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+    .task-detail-value { font-size: 1rem; color: var(--text-primary); }
+    .task-detail-value.priority-high { color: var(--priority-high); font-weight: 600; }
+    .task-detail-value.priority-medium { color: var(--priority-medium); font-weight: 600; }
+    .task-detail-value.priority-low { color: var(--priority-low); font-weight: 600; }
+    .task-detail-status { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 500; }
+    .task-detail-status.todo { background: var(--bg-tertiary); color: var(--text-secondary); }
+    .task-detail-status.progress { background: rgba(0,137,203,0.2); color: var(--accent-blue); }
+    .task-detail-status.done { background: rgba(0,200,81,0.2); color: var(--priority-low); }
+    .task-detail-status.archive { background: var(--bg-tertiary); color: var(--text-tertiary); }
     @media (max-width: 480px) {
       .modal { padding: 20px; width: 95%; }
       .modal-title { font-size: 1.25rem; }
@@ -201,7 +213,8 @@
     .calendar-day.today { border: 2px solid var(--accent-blue); }
     .calendar-day-number { font-weight: 600; font-size: 0.875rem; margin-bottom: 4px; }
     .calendar-day-tasks { display: flex; flex-direction: column; gap: 4px; }
-    .calendar-task { font-size: 0.7rem; padding: 2px 6px; background: var(--accent-blue); color: white; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .calendar-task { font-size: 0.7rem; padding: 2px 6px; background: var(--accent-blue); color: white; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+    .calendar-task:hover { opacity: 0.8; }
     .calendar-task.high { background: var(--priority-high); }
     .calendar-task.medium { background: var(--priority-medium); color: #000; }
     .calendar-task.low { background: var(--priority-low); }
@@ -329,6 +342,13 @@
       </form>
     </div>
   </div>
+  <div class="modal-overlay" id="taskDetailModal">
+    <div class="modal">
+      <div class="modal-header"><h2 class="modal-title" id="taskDetailTitle">Detalles de Tarea</h2><button class="modal-close" id="taskDetailClose">×</button></div>
+      <div class="task-detail-content" id="taskDetailContent"></div>
+      <div class="modal-actions"><button type="button" class="btn btn-secondary" id="taskDetailCloseBtn">Cerrar</button></div>
+    </div>
+  </div>
   <script>
 const App = {
   data: { tasks: [], goals: [], weekCompleted: 0, weekTotal: 7, suggestedTasks: [], journal: [] },
@@ -368,6 +388,9 @@ const App = {
     this.calendarDate = new Date();
     document.getElementById('prevMonth').addEventListener('click', () => { this.calendarDate.setMonth(this.calendarDate.getMonth() - 1); this.renderCalendar(); });
     document.getElementById('nextMonth').addEventListener('click', () => { this.calendarDate.setMonth(this.calendarDate.getMonth() + 1); this.renderCalendar(); });
+    // Task detail modal
+    document.getElementById('taskDetailClose').addEventListener('click', () => this.closeTaskDetail());
+    document.getElementById('taskDetailCloseBtn').addEventListener('click', () => this.closeTaskDetail());
     this.setupDragDrop();
   },
   openModal(status) { 
@@ -415,6 +438,23 @@ const App = {
     document.getElementById('journalTitle').focus(); 
   },
   closeJournalModal() { document.getElementById('journalModal').classList.remove('active'); document.getElementById('journalForm').reset(); this.editingJournalId = null; },
+  openTaskDetail(taskId) {
+    const task = this.data.tasks.find(t => t.id === taskId);
+    if (!task) return;
+    const goal = task.goalId ? this.data.goals.find(g => g.id === task.goalId) : null;
+    const priorityLabels = { high: 'Alta', medium: 'Media', low: 'Baja' };
+    const statusLabels = { todo: 'Por Hacer', progress: 'En Progreso', done: 'Hecho', archive: 'Archivo' };
+    const statusColors = { todo: '', progress: '', done: '', archive: '' };
+    document.getElementById('taskDetailTitle').textContent = task.title;
+    document.getElementById('taskDetailContent').innerHTML = 
+      '<div class="task-detail-row"><div class="task-detail-label">Descripción</div><div class="task-detail-value">' + (task.description || 'Sin descripción') + '</div></div>' +
+      '<div class="task-detail-row"><div class="task-detail-label">Fecha de entrega</div><div class="task-detail-value">' + (task.dueDate || 'Sin fecha') + '</div></div>' +
+      '<div class="task-detail-row"><div class="task-detail-label">Prioridad</div><div class="task-detail-value priority-' + task.priority + '">' + (priorityLabels[task.priority] || 'Media') + '</div></div>' +
+      '<div class="task-detail-row"><div class="task-detail-label">Objetivo</div><div class="task-detail-value">' + (goal ? goal.title : 'Sin objetivo') + '</div></div>' +
+      '<div class="task-detail-row"><div class="task-detail-label">Status</div><div class="task-detail-status ' + task.status + '">' + (statusLabels[task.status] || 'Por Hacer') + '</div></div>';
+    document.getElementById('taskDetailModal').classList.add('active');
+  },
+  closeTaskDetail() { document.getElementById('taskDetailModal').classList.remove('active'); },
   saveJournal() {
     const date = document.getElementById('journalDate').value;
     const title = document.getElementById('journalTitle').value;
@@ -468,7 +508,7 @@ const App = {
       const tasksForDay = this.data.tasks.filter(t => t.dueDate === dateStr);
       let tasksHtml = '';
       tasksForDay.slice(0, 3).forEach(task => {
-        tasksHtml += '<div class="calendar-task ' + task.priority + '" title="' + task.title + '">' + task.title + '</div>';
+        tasksHtml += '<div class="calendar-task ' + task.priority + '" title="' + task.title + '" onclick="App.openTaskDetail(' + task.id + ')">' + task.title + '</div>';
       });
       if (tasksForDay.length > 3) tasksHtml += '<div class="calendar-task" style="background:var(--text-secondary)">+' + (tasksForDay.length - 3) + '</div>';
       html += '<div class="calendar-day' + (isToday ? ' today' : '') + '"><div class="calendar-day-number">' + day + '</div><div class="calendar-day-tasks">' + tasksHtml + '</div></div>';
