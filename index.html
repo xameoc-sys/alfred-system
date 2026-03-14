@@ -19,7 +19,7 @@
     .sidebar { width: 280px; background: var(--bg-secondary); border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; padding: 24px; position: fixed; height: 100vh; z-index: 100; animation: slideInLeft 0.6s ease-out; }
     @keyframes slideInLeft { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     .logo { display: flex; align-items: center; gap: 12px; margin-bottom: 48px; }
-    .logo-icon { width: 48px; height: 48px; background: linear-gradient(135deg, var(--accent-blue), #005580); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-weight: 700; font-size: 24px; color: var(--bg-primary); box-shadow: var(--glow-blue); }
+    .logo-icon { width: 48px; height: 48px; object-fit: contain; }
     .logo-text { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 600; letter-spacing: 0.05em; }
     .nav-section { margin-bottom: 32px; }
     .nav-label { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--text-tertiary); margin-bottom: 12px; padding-left: 12px; }
@@ -194,7 +194,7 @@
 <body>
   <div class="app-container">
     <aside class="sidebar">
-      <div class="logo"><div class="logo-icon">M</div><span class="logo-text">Mattera</span></div>
+      <div class="logo"><img src="logo-m.svg" alt="Mattera" class="logo-icon"><span class="logo-text">Mattera</span></div>
       <nav class="nav-section">
         <div class="nav-label">Principal</div>
         <div class="nav-item active" data-view="dashboard"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</div>
