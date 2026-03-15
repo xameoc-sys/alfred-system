@@ -781,6 +781,7 @@ const App = {
   updateGroupTaskAssignee(taskId, assignee) { this.load(); const task = this.data.groupTasks.find(t => t.id === taskId); if (task) { task.assignee = assignee; this.save(); this.render(); } },
   updateGroupTaskStatus(taskId, status) { this.load(); const task = this.data.groupTasks.find(t => t.id === taskId); if (task) { task.status = status; this.save(); this.render(); } },
   deleteGoal(id) { if (confirm('¿Eliminar este objetivo?')) { this.data.goals = this.data.goals.filter(g => g.id !== id); this.data.tasks = this.data.tasks.filter(t => t.goalId !== id); this.data.suggestedTasks = this.data.suggestedTasks.filter(t => t.goalId !== id); this.save(); this.render(); } },
+  toggleGoalComplete(id) { this.load(); const goal = this.data.goals.find(g => g.id === id); if (goal) { goal.completed = !goal.completed; this.save(); this.render(); } },
   addSuggestedToTask(taskId) {
     const suggested = this.data.suggestedTasks.find(t => t.id === taskId);
     if (suggested) { const task = { ...suggested, status: 'todo', goalId: suggested.goalId }; this.data.tasks.push(task); this.data.suggestedTasks = this.data.suggestedTasks.filter(t => t.id !== taskId); this.save(); this.render(); }
@@ -903,7 +904,7 @@ const App = {
       });
       const div = document.createElement('div'); 
       div.className = 'goal-card'; 
-      div.innerHTML = '<div class="goal-header"><span class="goal-title' + (goal.completed ? ' completed' : '') + '">' + goal.title + '</span><div class="goal-actions"><button class="goal-action-btn delete" onclick="App.deleteGoal(' + goal.id + ')">🗑️</button></div></div>' + (goal.description ? '<div class="goal-description">' + goal.description + '</div>' : '') + '<div class="goal-meta"><span>📅 ' + (goal.dueDate || 'Sin fecha') + '</span><span>🏷️ ' + goal.category + '</span>' + (goal.completed ? '<span style="color:var(--priority-low)">✓ Completado</span>' : '') + '</div><div class="goal-progress-bar"><div class="goal-progress-fill" style="width:' + progress + '%"></div></div><div class="goal-progress-text">' + completedTasks + '/' + goalTasks.length + ' tareas completadas</div><div class="goal-tasks-list">' + (tasksHtml || '<div class="goal-no-tasks">Sin tareas asignadas</div>') + '</div>'; 
+      div.innerHTML = '<div class="goal-header"><span class="goal-title' + (goal.completed ? ' completed' : '') + '">' + goal.title + '</span><div class="goal-actions"><button class="goal-action-btn" onclick="App.toggleGoalComplete(' + goal.id + ')">' + (goal.completed ? '↩️' : '✅') + '</button><button class="goal-action-btn delete" onclick="App.deleteGoal(' + goal.id + ')">🗑️</button></div></div>' + (goal.description ? '<div class="goal-description">' + goal.description + '</div>' : '') + '<div class="goal-meta"><span>📅 ' + (goal.dueDate || 'Sin fecha') + '</span><span>🏷️ ' + goal.category + '</span>' + (goal.completed ? '<span style="color:var(--priority-low)">✓ Completado</span>' : '') + '</div><div class="goal-progress-bar"><div class="goal-progress-fill" style="width:' + progress + '%"></div></div><div class="goal-progress-text">' + completedTasks + '/' + goalTasks.length + ' tareas completadas</div><div class="goal-tasks-list">' + (tasksHtml || '<div class="goal-no-tasks">Sin tareas asignadas</div>') + '</div>'; 
       grid.appendChild(div); 
     });
   },
