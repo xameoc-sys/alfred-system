@@ -100,11 +100,11 @@
     .modal { background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: 20px; padding: 32px; width: 90%; max-width: 500px; box-shadow: var(--shadow-elevated); animation: modalIn 0.3s ease-out; }
     .task-detail-content { margin-bottom: 20px; }
     .task-detail-row { margin-bottom: 16px; }
-    .task-detail-label { font-size: 0.75rem; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
-    .task-detail-value { font-size: 1rem; color: var(--text-primary); }
-    .task-detail-value.priority-high { color: var(--priority-high); font-weight: 600; }
-    .task-detail-value.priority-medium { color: var(--priority-medium); font-weight: 600; }
-    .task-detail-value.priority-low { color: var(--priority-low); font-weight: 600; }
+    .task-detail-label { font-size: 0.75rem; color: #656565; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+    .task-detail-value { font-size: 1rem; color: #000000; }
+    .task-detail-value.priority-high { color: #ff0000; font-weight: 600; }
+    .task-detail-value.priority-medium { color: #ffcc00; font-weight: 600; }
+    .task-detail-value.priority-low { color: #00cc00; font-weight: 600; }
     .task-detail-status { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 500; }
     .task-detail-status.todo { background: var(--bg-tertiary); color: var(--text-secondary); }
     .task-detail-status.progress { background: rgba(0,137,203,0.2); color: var(--accent-blue); }
@@ -145,7 +145,10 @@
     /* Goals view styles */
     .goals-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
     .goal-card { background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: 16px; padding: 24px; transition: all 0.3s ease; }
-    .goal-detail-container { max-width: 800px; margin: 0 auto; }
+    .goal-detail-container { max-width: 800px; margin: 0 auto; color: #000000; }
+    .goal-detail-container h3 { color: #000000; }
+    .goal-detail-container p { color: #000000; }
+    .goal-detail-container span { color: #000000; }
     .goal-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-medium); border-color: var(--accent-blue); }
     .goal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
     .goal-title { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 600; }
@@ -959,26 +962,26 @@ const App = {
     const goalTasks = this.data.tasks.filter(t => t.goalId === goalId);
     const completedTasks = goalTasks.filter(t => t.status === 'done').length;
     const progress = goalTasks.length > 0 ? Math.round((completedTasks / goalTasks.length) * 100) : 0;
-    let tasksHtml = '<div style="margin-bottom:24px"><h3 style="margin-bottom:16px">Tareas (' + completedTasks + '/' + goalTasks.length + ')</h3>';
+    let tasksHtml = '<div style="margin-bottom:24px"><h3 style="margin-bottom:16px;color:#000">Tareas (' + completedTasks + '/' + goalTasks.length + ')</h3>';
     if (goalTasks.length === 0) {
-      tasksHtml += '<p style="color:var(--text-tertiary)">No hay tareas asignadas a este objetivo.</p>';
+      tasksHtml += '<p style="color:#656565">No hay tareas asignadas a este objetivo.</p>';
     } else {
       goalTasks.forEach(task => {
-        tasksHtml += '<div class="goal-task-item" style="padding:12px;background:var(--bg-tertiary);border-radius:8px;margin-bottom:8px;display:flex;align-items:center;gap:12px;"><input type="checkbox" ' + (task.status === 'done' ? 'checked' : '') + ' onchange="App.toggleTaskStatus(' + task.id + ')"><span class="goal-task-priority ' + task.priority + '" style="width:10px;height:10px;border-radius:50%;flex-shrink:0;"></span><span style="flex:1' + (task.status === 'done' ? 'text-decoration:line-through;color:var(--text-tertiary)' : '') + '">' + task.title + '</span><span style="font-size:12px;color:var(--text-tertiary)">' + (task.dueDate || 'Sin fecha') + '</span></div>';
+        tasksHtml += '<div class="goal-task-item" style="padding:12px;background:var(--bg-tertiary);border-radius:8px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer" onclick="App.openTaskDetail(' + task.id + ')"><input type="checkbox" ' + (task.status === 'done' ? 'checked' : '') + ' onclick="event.stopPropagation();App.toggleTaskStatus(' + task.id + ')"><span class="goal-task-priority ' + task.priority + '" style="width:10px;height:10px;border-radius:50%;flex-shrink:0;"></span><span style="flex:1;color:#000' + (task.status === 'done' ? 'text-decoration:line-through;color:#656565' : '') + '">' + task.title + '</span><span style="font-size:12px;color:#656565">' + (task.dueDate || 'Sin fecha') + '</span></div>';
       });
     }
     tasksHtml += '</div>';
-    let suggestedHtml = '<div style="margin-bottom:24px"><h3 style="margin-bottom:16px">Tareas Sugeridas</h3>';
+    let suggestedHtml = '<div style="margin-bottom:24px"><h3 style="margin-bottom:16px;color:#000">Tareas Sugeridas</h3>';
     const suggested = this.data.suggestedTasks.filter(t => t.goalId === goalId);
     if (suggested.length === 0) {
-      suggestedHtml += '<p style="color:var(--text-tertiary)">No hay tareas sugeridas.</p>';
+      suggestedHtml += '<p style="color:#656565">No hay tareas sugeridas.</p>';
     } else {
       suggested.forEach(task => {
-        suggestedHtml += '<div class="suggested-task" style="padding:12px;background:var(--bg-tertiary);border-radius:8px;margin-bottom:8px;display:flex;align-items:center;gap:12px;"><button class="suggested-task-btn" style="background:var(--accent-blue);color:white;border:none;border-radius:4px;padding:4px 8px;cursor:pointer;" onclick="App.addSuggestedToTask(' + task.id + ')">➕</button><span>' + task.title + '</span></div>';
+        suggestedHtml += '<div class="suggested-task" style="padding:12px;background:var(--bg-tertiary);border-radius:8px;margin-bottom:8px;display:flex;align-items:center;gap:12px;"><button class="suggested-task-btn" style="background:var(--accent-blue);color:white;border:none;border-radius:4px;padding:4px 8px;cursor:pointer;" onclick="App.addSuggestedToTask(' + task.id + ')">➕</button><span style="color:#000">' + task.title + '</span></div>';
       });
     }
     suggestedHtml += '</div>';
-    container.innerHTML = '<div style="background:var(--bg-secondary);border:1px solid var(--glass-border);border-radius:16px;padding:24px;margin-bottom:24px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><span style="font-size:14px;color:var(--text-tertiary)">Progreso</span><span style="font-size:24px;font-weight:bold">' + progress + '%</span></div><div class="goal-progress-bar" style="height:8px"><div class="goal-progress-fill" style="width:' + progress + '%"></div></div></div>' + tasksHtml + suggestedHtml;
+    container.innerHTML = '<div style="background:var(--bg-secondary);border:1px solid var(--glass-border);border-radius:16px;padding:24px;margin-bottom:24px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><span style="font-size:14px;color:#656565">Progreso</span><span style="font-size:24px;font-weight-bold;color:#000">' + progress + '%</span></div><div class="goal-progress-bar" style="height:8px"><div class="goal-progress-fill" style="width:' + progress + '%"></div></div></div>' + tasksHtml + suggestedHtml;
     this.switchView('goal-detail');
   },
   renderSuggestedTasks() {
