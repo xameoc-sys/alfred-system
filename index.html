@@ -292,6 +292,7 @@
         <button type="submit" class="btn btn-primary" style="width:100%;margin-top:16px;">Iniciar Sesión</button>
       </form>
       <p class="login-register">¿No tienes cuenta? <a href="#" id="showRegister">Regístrate</a></p>
+      <p class="login-register"><a href="#" id="demoLogin" style="color:var(--accent-blue);">Entrar como usuario de prueba</a></p>
       <form class="login-form" id="registerForm" style="display:none;">
         <div class="form-group"><input type="text" class="form-input" id="registerUsername" placeholder="Usuario" required></div>
         <div class="form-group"><input type="email" class="form-input" id="registerEmail" placeholder="Email" required></div>
@@ -497,7 +498,7 @@ const App = {
   login() {
     const username = document.getElementById('loginUsername').value;
     const password = document.getElementById('loginPassword').value;
-    // Try local first, then API
+    // Try local first
     const user = this.data.users.find(u => u.username === username && u.password === password);
     if (user) {
       this.data.currentUser = user;
@@ -524,9 +525,21 @@ const App = {
         }
       })
       .catch(() => {
-        alert('Usuario o contraseña incorrectos');
+        alert('No se pudo conectar al servidor. Asegúrate de que el backend esté corriendo en localhost:8000');
       });
     }
+  },
+  demoLogin() {
+    // Create demo user if not exists
+    let demoUser = this.data.users.find(u => u.username === 'demo');
+    if (!demoUser) {
+      demoUser = { id: Date.now(), username: 'demo', email: 'demo@mattera.com', password: 'demo123', role: 'user', isAdmin: false };
+      this.data.users.push(demoUser);
+    }
+    this.data.currentUser = demoUser;
+    this.save();
+    this.checkLogin();
+    this.render();
   },
   register() {
     const username = document.getElementById('registerUsername').value;
@@ -621,6 +634,7 @@ const App = {
     document.getElementById('registerForm').addEventListener('submit', (e) => { e.preventDefault(); this.register(); });
     document.getElementById('showRegister').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('loginForm').style.display = 'none'; document.getElementById('showRegister').parentElement.style.display = 'none'; document.getElementById('registerForm').style.display = 'block'; document.getElementById('showLogin').parentElement.style.display = 'block'; });
     document.getElementById('showLogin').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('registerForm').style.display = 'none'; document.getElementById('showLogin').parentElement.style.display = 'none'; document.getElementById('loginForm').style.display = 'block'; document.getElementById('showRegister').parentElement.style.display = 'block'; });
+    document.getElementById('demoLogin').addEventListener('click', (e) => { e.preventDefault(); this.demoLogin(); });
     document.getElementById('quickAddBtn').addEventListener('click', () => this.openModal('todo'));
     document.querySelectorAll('.add-card-btn').forEach(btn => btn.addEventListener('click', () => this.openModal(btn.dataset.status)));
     document.getElementById('modalClose').addEventListener('click', () => this.closeModal());
