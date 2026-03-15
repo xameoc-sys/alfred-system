@@ -1061,7 +1061,14 @@ const App = {
     const activeTasks = this.data.tasks.filter(t => t.status !== 'archive' && t.status !== 'done');
     const activeGroupTasks = this.data.groupTasks.filter(t => t.status !== 'archive' && t.status !== 'done');
     if (activeTasks.length === 0 && activeGroupTasks.length === 0) { container.innerHTML = '<div class="pendientes-empty">No hay tareas pendientes</div>'; return; }
-    const sortedTasks = activeTasks.sort((a, b) => {
+    
+    // Separate assigned and unassigned tasks
+    const assignedTasks = activeTasks.filter(t => t.assignee);
+    const unassignedTasks = activeTasks.filter(t => !t.assignee);
+    const assignedGroupTasks = activeGroupTasks.filter(t => t.assignee);
+    const unassignedGroupTasks = activeGroupTasks.filter(t => !t.assignee);
+    
+    const sortedTasks = assignedTasks.sort((a, b) => {
       const prioDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
       if (prioDiff !== 0) return prioDiff;
       if (a.dueDate && b.dueDate) return new Date(a.dueDate) - new Date(b.dueDate);
@@ -1069,7 +1076,23 @@ const App = {
       if (b.dueDate) return 1;
       return 0;
     });
-    const sortedGroupTasks = activeGroupTasks.sort((a, b) => {
+    const sortedGroupTasks = assignedGroupTasks.sort((a, b) => {
+      const prioDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
+      if (prioDiff !== 0) return prioDiff;
+      if (a.dueDate && b.dueDate) return new Date(a.dueDate) - new Date(b.dueDate);
+      if (a.dueDate) return -1;
+      if (b.dueDate) return 1;
+      return 0;
+    });
+    const sortedUnassignedTasks = unassignedTasks.sort((a, b) => {
+      const prioDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
+      if (prioDiff !== 0) return prioDiff;
+      if (a.dueDate && b.dueDate) return new Date(a.dueDate) - new Date(b.dueDate);
+      if (a.dueDate) return -1;
+      if (b.dueDate) return 1;
+      return 0;
+    });
+    const sortedUnassignedGroupTasks = unassignedGroupTasks.sort((a, b) => {
       const prioDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
       if (prioDiff !== 0) return prioDiff;
       if (a.dueDate && b.dueDate) return new Date(a.dueDate) - new Date(b.dueDate);
@@ -1078,6 +1101,20 @@ const App = {
       return 0;
     });
     let html = '';
+    
+    // Unassigned tasks section first
+    const allUnassigned = [...sortedUnassignedTasks, ...sortedUnassignedGroupTasks];
+    if (allUnassigned.length > 0) {
+      html += '<div class="pendientes-group"><div class="pendientes-group-title" style="color:var(--priority-high);">⚠️ Sin Asignación</div>';
+      sortedUnassignedTasks.forEach(task => {
+        html += '<div class="pendientes-task" onclick="App.openTaskDetail(' + task.id + ')"><span class="pendientes-task-priority ' + task.priority + '"></span><div class="pendientes-task-info"><div class="pendientes-task-title">' + task.title + '</div><div class="pendientes-task-meta">' + (task.dueDate || 'Sin fecha') + '</div></div><span class="pendientes-task-status ' + task.status + '">' + statusLabels[task.status] + '</span></div>';
+      });
+      sortedUnassignedGroupTasks.forEach(task => {
+        html += '<div class="pendientes-task" onclick="App.openGroupTaskDetail(' + task.id + ')"><span class="pendientes-task-priority ' + task.priority + '"></span><div class="pendientes-task-info"><div class="pendientes-task-title">' + task.title + '</div><div class="pendientes-task-meta">' + (task.assignee ? '👤 ' + task.assignee + ' • ' : '⚠️ Asignación pendiente • ') + (task.dueDate || 'Sin fecha') + '</div></div><span class="pendientes-task-status ' + task.status + '">' + statusLabels[task.status] + '</span></div>';
+      });
+      html += '</div>';
+    }
+    
     // Group personal tasks by goal
     const goalsWithTasks = {};
     sortedTasks.forEach(task => {
@@ -1088,7 +1125,7 @@ const App = {
     Object.keys(goalsWithTasks).forEach(goalName => {
       html += '<div class="pendientes-group"><div class="pendientes-group-title">' + goalName + '</div>';
       goalsWithTasks[goalName].forEach(task => {
-        html += '<div class="pendientes-task" onclick="App.openTaskDetail(' + task.id + ')"><span class="pendientes-task-priority ' + task.priority + '"></span><div class="pendientes-task-info"><div class="pendientes-task-title">' + task.title + '</div><div class="pendientes-task-meta">' + (task.dueDate || 'Sin fecha') + '</div></div><span class="pendientes-task-status ' + task.status + '">' + statusLabels[task.status] + '</span></div>';
+        html += '<div class="pendientes-task" onclick="App.openTaskDetail(' + task.id + ')"><span class="pendientes-task-priority ' + task.priority + '"></span><div class="pendientes-task-info"><div class="pendientes-task-title">' + task.title + '</div><div class="pendientes-task-meta">' + (task.assignee ? '👤 ' + task.assignee + ' • ' : '') + (task.dueDate || 'Sin fecha') + '</div></div><span class="pendientes-task-status ' + task.status + '">' + statusLabels[task.status] + '</span></div>';
       });
       html += '</div>';
     });
@@ -1103,6 +1140,12 @@ const App = {
     Object.keys(groupsWithTasks).forEach(groupName => {
       html += '<div class="pendientes-group"><div class="pendientes-group-title">👥 ' + groupName + '</div>';
       groupsWithTasks[groupName].forEach(task => {
+        html += '<div class="pendientes-task" onclick="App.openGroupTaskDetail(' + task.id + ')"><span class="pendientes-task-priority ' + task.priority + '"></span><div class="pendientes-task-info"><div class="pendientes-task-title">' + task.title + '</div><div class="pendientes-task-meta">' + (task.assignee ? '👤 ' + task.assignee + ' • ' : '') + (task.dueDate || 'Sin fecha') + '</div></div><span class="pendientes-task-status ' + task.status + '">' + statusLabels[task.status] + '</span></div>';
+      });
+      html += '</div>';
+    });
+    container.innerHTML = html;
+  },
         const assignedClass = task.assignee ? '' : 'unassigned';
         html += '<div class="pendientes-task" onclick="App.openGroupTaskDetail(' + task.id + ')"><span class="pendientes-task-priority ' + task.priority + '"></span>' + (!task.assignee ? '<span class="pendientes-task-priority" style="background:var(--text-tertiary)" title="Sin asignar"></span>' : '') + '<div class="pendientes-task-info"><div class="pendientes-task-title">' + task.title + '</div><div class="pendientes-task-meta">' + (task.assignee ? '👤 ' + task.assignee + ' • ' : '⚠️ Asignación pendiente • ') + (task.dueDate || 'Sin fecha') + '</div></div><span class="pendientes-task-status ' + task.status + '">' + statusLabels[task.status] + '</span></div>';
       });
