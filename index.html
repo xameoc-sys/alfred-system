@@ -581,6 +581,7 @@ const App = {
   },
   renderCalendar() {
     const grid = document.getElementById('calendarGrid');
+    if (!grid) return;
     const monthLabel = document.getElementById('calendarMonth');
     const year = this.calendarDate.getFullYear();
     const month = this.calendarDate.getMonth();
