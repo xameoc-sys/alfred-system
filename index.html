@@ -561,19 +561,52 @@ const App = {
   },
   closeModal() { document.getElementById('taskModal').classList.remove('active'); document.getElementById('taskForm').reset(); },
   openGoalModal() { document.getElementById('goalModalTitle').textContent = 'Nuevo Objetivo'; document.getElementById('goalModal').classList.add('active'); document.getElementById('goalTitle').focus(); },
-  closeGoalModal() { document.getElementById('goalModal').classList.remove('active'); document.getElementById('goalForm').reset(); },
+  closeGoalModal() { document.getElementById('goalModal').classList.remove('active'); document.getElementById('goalForm').reset(); document.getElementById('goalModalTitle').textContent = 'Nuevo Objetivo'; const goalIdInput = document.getElementById('goalGoalId'); if (goalIdInput) goalIdInput.remove(); },
   saveTask() {
     const goalId = document.getElementById('taskGoal').value;
     const task = { id: Date.now(), title: document.getElementById('taskTitle').value, description: document.getElementById('taskDescription').value, priority: document.getElementById('taskPriority').value, dueDate: document.getElementById('taskDueDate').value, status: this.currentStatus || 'todo', createdAt: new Date().toISOString(), goalId: goalId ? parseInt(goalId) : null };
     this.data.tasks.push(task); this.save(); this.closeModal(); this.render();
   },
   saveGoal() {
-    const goal = { id: Date.now(), title: document.getElementById('goalTitle').value, description: document.getElementById('goalDescription').value, dueDate: document.getElementById('goalDueDate').value, category: document.getElementById('goalCategory').value, completed: false, createdAt: new Date().toISOString(), tasks: [] };
-    this.data.goals.push(goal);
-    // Generate suggested tasks for this goal
-    const suggested = this.generateSuggestedTasks(goal);
-    this.data.suggestedTasks = [...this.data.suggestedTasks, ...suggested];
+    const goalIdInput = document.getElementById('goalGoalId');
+    if (goalIdInput && goalIdInput.value) {
+      // Editing existing goal
+      const goal = this.data.goals.find(g => g.id === parseInt(goalIdInput.value));
+      if (goal) {
+        goal.title = document.getElementById('goalTitle').value;
+        goal.description = document.getElementById('goalDescription').value;
+        goal.dueDate = document.getElementById('goalDueDate').value;
+        goal.category = document.getElementById('goalCategory').value;
+      }
+    } else {
+      // Creating new goal
+      const goal = { id: Date.now(), title: document.getElementById('goalTitle').value, description: document.getElementById('goalDescription').value, dueDate: document.getElementById('goalDueDate').value, category: document.getElementById('goalCategory').value, completed: false, createdAt: new Date().toISOString(), tasks: [] };
+      this.data.goals.push(goal);
+      // Generate suggested tasks for this goal
+      const suggested = this.generateSuggestedTasks(goal);
+      this.data.suggestedTasks = [...this.data.suggestedTasks, ...suggested];
+    }
     this.save(); this.closeGoalModal(); this.switchView('goals');
+  },
+  editGoal(id) {
+    const goal = this.data.goals.find(g => g.id === id);
+    if (!goal) return;
+    document.getElementById('goalModalTitle').textContent = 'Editar Objetivo';
+    document.getElementById('goalTitle').value = goal.title;
+    document.getElementById('goalDescription').value = goal.description || '';
+    document.getElementById('goalDueDate').value = goal.dueDate || '';
+    document.getElementById('goalCategory').value = goal.category || 'personal';
+    // Add hidden field for editing
+    let goalIdInput = document.getElementById('goalGoalId');
+    if (!goalIdInput) {
+      goalIdInput = document.createElement('input');
+      goalIdInput.type = 'hidden';
+      goalIdInput.id = 'goalGoalId';
+      document.getElementById('goalForm').appendChild(goalIdInput);
+    }
+    goalIdInput.value = goal.id;
+    document.getElementById('goalModal').classList.add('active');
+    document.getElementById('goalTitle').focus();
   },
   openJournalModal(entryId) { 
     this.editingJournalId = entryId || null;
