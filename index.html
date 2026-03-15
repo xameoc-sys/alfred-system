@@ -532,7 +532,23 @@ const App = {
     document.getElementById('taskDetailModal').classList.add('active');
   },
   updateTaskAssignee(taskId, assignee) { const task = this.data.tasks.find(t => t.id === taskId); if (task) { task.assignee = assignee || null; this.save(); this.render(); } },
-  updateTaskStatus(taskId, status) { const task = this.data.tasks.find(t => t.id === taskId); if (task) { task.status = status; this.save(); this.render(); } },
+  updateTaskStatus(taskId, status) { 
+    const task = this.data.tasks.find(t => t.id === taskId); 
+    if (task) { 
+      task.status = status; 
+      this.save(); 
+      // Check if all tasks in goal are done
+      if (task.goalId) {
+        const goalTasks = this.data.tasks.filter(t => t.goalId === task.goalId);
+        const allDone = goalTasks.length > 0 && goalTasks.every(t => t.status === 'done');
+        const goal = this.data.goals.find(g => g.id === task.goalId);
+        if (goal) {
+          goal.completed = allDone;
+        }
+      }
+      this.render(); 
+    } 
+  },
   closeTaskDetail() { document.getElementById('taskDetailModal').classList.remove('active'); },
   saveJournal() {
     const date = document.getElementById('journalDate').value;
@@ -675,7 +691,7 @@ const App = {
     const suggested = this.data.suggestedTasks.find(t => t.id === taskId);
     if (suggested) { const task = { ...suggested, status: 'todo', goalId: suggested.goalId }; this.data.tasks.push(task); this.data.suggestedTasks = this.data.suggestedTasks.filter(t => t.id !== taskId); this.save(); this.render(); }
   },
-  deleteTask(id) { this.data.tasks = this.data.tasks.filter(t => t.id !== id); this.save(); this.render(); },
+  deleteTask(id) { const task = this.data.tasks.find(t => t.id === id); const goalId = task ? task.goalId : null; this.data.tasks = this.data.tasks.filter(t => t.id !== id); if (goalId) { const goalTasks = this.data.tasks.filter(t => t.goalId === goalId); const allDone = goalTasks.length > 0 && goalTasks.every(t => t.status === 'done'); const goal = this.data.goals.find(g => g.id === goalId); if (goal) goal.completed = allDone; } this.save(); this.render(); },
   updateTaskPriority(id, priority) { const task = this.data.tasks.find(t => t.id === id); if (task) { task.priority = priority; this.save(); this.render(); } },
   setupDragDrop() {
     let draggedItem = null;
@@ -706,8 +722,8 @@ const App = {
     this.data.tasks.forEach(task => { counts[task.status]++; });
     this.data.tasks.forEach(task => { const card = this.createCard(task); document.getElementById('cards-' + task.status).appendChild(card); });
     Object.keys(counts).forEach(status => { document.getElementById('count-' + status).textContent = counts[status]; });
-    document.getElementById('statGoals').textContent = this.data.goals.length;
-    document.getElementById('statTasks').textContent = this.data.tasks.length;
+    document.getElementById('statGoals').textContent = this.data.goals.filter(g => !g.completed).length;
+    document.getElementById('statTasks').textContent = this.data.tasks.filter(t => t.status !== 'done').length;
     document.getElementById('statProgress').textContent = counts.progress;
     document.getElementById('statDone').textContent = counts.done;
     this.renderGoals();
