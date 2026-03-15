@@ -93,10 +93,14 @@
     .kanban-card:hover { transform: scale(1.02); box-shadow: var(--shadow-medium); border-color: var(--accent-blue); }
     .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
     .card-title { font-weight: 500; font-size: 0.9375rem; line-height: 1.4; }
-    .card-priority { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
-    .card-priority.high { background: var(--priority-high); box-shadow: 0 0 8px var(--priority-high); }
+    .card-priority { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .card-priority.high { background: var(--priority-high); }
     .card-priority.medium { background: var(--priority-medium); }
     .card-priority.low { background: var(--priority-low); }
+    .card-edit-btn { background: transparent; border: none; cursor: pointer; font-size: 12px; opacity: 0; transition: opacity 0.2s; }
+    .kanban-card:hover .card-edit-btn { opacity: 1; }
+    .card-assignee { font-size: 0.65rem; color: var(--text-secondary); }
+    .card-assignee.unassigned { color: var(--priority-high); }
     .card-description { font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .card-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-tertiary); }
     .add-card-btn { width: 100%; padding: 12px; background: transparent; border: 1px dashed var(--glass-border); border-radius: 12px; color: var(--text-tertiary); font-family: 'Outfit', sans-serif; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease; margin-top: 12px; }
@@ -408,6 +412,7 @@
           <div class="form-group"><label class="form-label">Fecha límite</label><input type="date" class="form-input" id="taskDueDate"></div>
         </div>
         <div class="form-group"><label class="form-label">Asignar a Objetivo</label><select class="form-select" id="taskGoal"><option value="">Sin objetivo</option></select></div>
+        <div class="form-group"><label class="form-label">Asignar a Usuario</label><select class="form-select" id="taskAssignee"><option value="">Sin asignar</option></select></div>
         <div class="modal-actions"><button type="button" class="btn btn-secondary" id="modalCancel">Cancelar</button><button type="submit" class="btn btn-primary">Guardar</button></div>
       </form>
     </div>
@@ -662,19 +667,50 @@ const App = {
   },
   closeModal() { document.getElementById('taskModal').classList.remove('active'); document.getElementById('taskForm').reset(); },
   openGoalModal() { document.getElementById('goalModalTitle').textContent = 'Nuevo Objetivo'; document.getElementById('goalModal').classList.add('active'); document.getElementById('goalTitle').focus(); },
-  closeGoalModal() { document.getElementById('goalModal').classList.remove('active'); document.getElementById('goalForm').reset(); },
+  closeGoalModal() { document.getElementById('goalModal').classList.remove('active'); document.getElementById('goalForm').reset(); document.getElementById('goalModalTitle').textContent = 'Nuevo Objetivo'; const goalIdInput = document.getElementById('goalGoalId'); if (goalIdInput) goalIdInput.remove(); },
   saveTask() {
     const goalId = document.getElementById('taskGoal').value;
     const task = { id: Date.now(), title: document.getElementById('taskTitle').value, description: document.getElementById('taskDescription').value, priority: document.getElementById('taskPriority').value, dueDate: document.getElementById('taskDueDate').value, status: this.currentStatus || 'todo', createdAt: new Date().toISOString(), goalId: goalId ? parseInt(goalId) : null };
     this.data.tasks.push(task); this.save(); this.closeModal(); this.render();
   },
   saveGoal() {
-    const goal = { id: Date.now(), title: document.getElementById('goalTitle').value, description: document.getElementById('goalDescription').value, dueDate: document.getElementById('goalDueDate').value, category: document.getElementById('goalCategory').value, completed: false, createdAt: new Date().toISOString(), tasks: [] };
-    this.data.goals.push(goal);
-    // Generate suggested tasks for this goal
-    const suggested = this.generateSuggestedTasks(goal);
-    this.data.suggestedTasks = [...this.data.suggestedTasks, ...suggested];
+    const goalId = document.getElementById('goalGoalId') ? document.getElementById('goalGoalId').value : null;
+    if (goalId) {
+      const goal = this.data.goals.find(g => g.id === parseInt(goalId));
+      if (goal) {
+        goal.title = document.getElementById('goalTitle').value;
+        goal.description = document.getElementById('goalDescription').value;
+        goal.dueDate = document.getElementById('goalDueDate').value;
+        goal.category = document.getElementById('goalCategory').value;
+      }
+    } else {
+      const goal = { id: Date.now(), title: document.getElementById('goalTitle').value, description: document.getElementById('goalDescription').value, dueDate: document.getElementById('goalDueDate').value, category: document.getElementById('goalCategory').value, completed: false, createdAt: new Date().toISOString(), tasks: [] };
+      this.data.goals.push(goal);
+      // Generate suggested tasks for this goal
+      const suggested = this.generateSuggestedTasks(goal);
+      this.data.suggestedTasks = [...this.data.suggestedTasks, ...suggested];
+    }
     this.save(); this.closeGoalModal(); this.switchView('goals');
+  },
+  editGoal(id) {
+    const goal = this.data.goals.find(g => g.id === id);
+    if (!goal) return;
+    document.getElementById('goalModalTitle').textContent = 'Editar Objetivo';
+    document.getElementById('goalTitle').value = goal.title;
+    document.getElementById('goalDescription').value = goal.description || '';
+    document.getElementById('goalDueDate').value = goal.dueDate || '';
+    document.getElementById('goalCategory').value = goal.category || 'personal';
+    // Add hidden field for editing
+    let goalIdInput = document.getElementById('goalGoalId');
+    if (!goalIdInput) {
+      goalIdInput = document.createElement('input');
+      goalIdInput.type = 'hidden';
+      goalIdInput.id = 'goalGoalId';
+      document.getElementById('goalForm').appendChild(goalIdInput);
+    }
+    goalIdInput.value = goal.id;
+    document.getElementById('goalModal').classList.add('active');
+    document.getElementById('goalTitle').focus();
   },
   openJournalModal(entryId) { 
     this.editingJournalId = entryId || null;
@@ -897,6 +933,47 @@ const App = {
     if (suggested) { const task = { ...suggested, status: 'todo', goalId: suggested.goalId }; this.data.tasks.push(task); this.data.suggestedTasks = this.data.suggestedTasks.filter(t => t.id !== taskId); this.save(); this.render(); }
   },
   deleteTask(id) { this.data.tasks = this.data.tasks.filter(t => t.id !== id); this.save(); this.render(); },
+  editTask(id) {
+    const task = this.data.tasks.find(t => t.id === id);
+    if (!task) return;
+    this.editingTaskId = id;
+    document.getElementById('modalTitle').textContent = 'Editar Tarea';
+    document.getElementById('taskTitle').value = task.title;
+    document.getElementById('taskDescription').value = task.description || '';
+    document.getElementById('taskPriority').value = task.priority || 'medium';
+    document.getElementById('taskDueDate').value = task.dueDate || '';
+    // Populate goal selector
+    const goalSelect = document.getElementById('taskGoal');
+    goalSelect.innerHTML = '<option value="">Sin objetivo</option>';
+    this.data.goals.forEach(g => { goalSelect.innerHTML += '<option value="' + g.id + '" ' + (task.goalId === g.id ? 'selected' : '') + '>' + g.title + '</option>'; });
+    // Populate assignee dropdown with all users
+    const assigneeSelect = document.getElementById('taskAssignee');
+    assigneeSelect.innerHTML = '<option value="">Sin asignar</option>';
+    this.data.users.forEach(u => { assigneeSelect.innerHTML += '<option value="' + u.username + '" ' + (task.assignee === u.username ? 'selected' : '') + '>' + u.username + '</option>'; });
+    this.currentStatus = task.status;
+    document.getElementById('taskModal').classList.add('active');
+    document.getElementById('taskTitle').focus();
+  },
+  saveTask() {
+    const goalId = document.getElementById('taskGoal').value;
+    if (this.editingTaskId) {
+      const task = this.data.tasks.find(t => t.id === this.editingTaskId);
+      if (task) {
+        task.title = document.getElementById('taskTitle').value;
+        task.description = document.getElementById('taskDescription').value;
+        task.priority = document.getElementById('taskPriority').value;
+        task.dueDate = document.getElementById('taskDueDate').value;
+        task.goalId = goalId ? parseInt(goalId) : null;
+        task.assignee = document.getElementById('taskAssignee').value || null;
+      }
+      this.editingTaskId = null;
+    } else {
+      const assignee = document.getElementById('taskAssignee').value;
+      const task = { id: Date.now(), title: document.getElementById('taskTitle').value, description: document.getElementById('taskDescription').value, priority: document.getElementById('taskPriority').value, dueDate: document.getElementById('taskDueDate').value, status: this.currentStatus || 'todo', createdAt: new Date().toISOString(), goalId: goalId ? parseInt(goalId) : null, assignee: assignee || null };
+      this.data.tasks.push(task);
+    }
+    this.save(); this.closeModal(); this.render();
+  },
   updateTaskPriority(id, priority) { const task = this.data.tasks.find(t => t.id === id); if (task) { task.priority = priority; this.save(); this.render(); } },
   setupDragDrop() {
     let draggedItem = null;
@@ -1019,7 +1096,7 @@ const App = {
       });
       const div = document.createElement('div'); 
       div.className = 'goal-card'; 
-      div.innerHTML = '<div class="goal-header"><span class="goal-title">' + goal.title + '</span><div class="goal-actions"><button class="goal-action-btn delete" onclick="App.deleteGoal(' + goal.id + ')">🗑️</button></div></div>' + (goal.description ? '<div class="goal-description">' + goal.description + '</div>' : '') + '<div class="goal-meta"><span>📅 ' + (goal.dueDate || 'Sin fecha') + '</span><span>🏷️ ' + goal.category + '</span></div><div class="goal-progress-bar"><div class="goal-progress-fill" style="width:' + progress + '%"></div></div><div class="goal-progress-text">' + completedTasks + '/' + goalTasks.length + ' tareas completadas</div><div class="goal-tasks-list">' + (tasksHtml || '<div class="goal-no-tasks">Sin tareas asignadas</div>') + '</div>'; 
+      div.innerHTML = '<div class="goal-header"><span class="goal-title">' + goal.title + '</span><div class="goal-actions"><button class="goal-action-btn" onclick="App.editGoal(' + goal.id + ')">✏️</button><button class="goal-action-btn delete" onclick="App.deleteGoal(' + goal.id + ')">🗑️</button></div></div>' + (goal.description ? '<div class="goal-description">' + goal.description + '</div>' : '') + '<div class="goal-meta"><span>📅 ' + (goal.dueDate || 'Sin fecha') + '</span><span>🏷️ ' + goal.category + '</span></div><div class="goal-progress-bar"><div class="goal-progress-fill" style="width:' + progress + '%"></div></div><div class="goal-progress-text">' + completedTasks + '/' + goalTasks.length + ' tareas completadas</div><div class="goal-tasks-list">' + (tasksHtml || '<div class="goal-no-tasks">Sin tareas asignadas</div>') + '</div>'; 
       grid.appendChild(div); 
     });
   },
@@ -1036,8 +1113,10 @@ const App = {
     div.className = 'kanban-card'; 
     div.draggable = true; 
     div.dataset.id = task.id; 
-    div.onclick = function() { App.openTaskDetail(task.id); };
-    div.innerHTML = '<div class="card-header"><span class="card-title">' + task.title + '</span><span class="card-priority ' + task.priority + '"></span></div>'; 
+    const goal = task.goalId ? this.data.goals.find(g => g.id === task.goalId) : null;
+    const assigneeHtml = task.assignee ? '<span class="card-assignee">👤 ' + task.assignee + '</span>' : '<span class="card-assignee unassigned">⚠️</span>';
+    div.onclick = function(e) { if (e.target.classList.contains('card-edit-btn')) { App.editTask(task.id); } else { App.openTaskDetail(task.id); } };
+    div.innerHTML = '<div class="card-header"><span class="card-title">' + task.title + '</span><button class="card-edit-btn" onclick="App.editTask(' + task.id + ')">✏️</button></div><div class="card-meta"><span class="card-priority ' + task.priority + '"></span>' + assigneeHtml + '</div>'; 
     return div; 
   },
   updateProgressRings() {
