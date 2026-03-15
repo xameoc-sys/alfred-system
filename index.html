@@ -145,6 +145,7 @@
     /* Goals view styles */
     .goals-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
     .goal-card { background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: 16px; padding: 24px; transition: all 0.3s ease; }
+    .goal-detail-container { max-width: 800px; margin: 0 auto; }
     .goal-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-medium); border-color: var(--accent-blue); }
     .goal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
     .goal-title { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 600; }
@@ -370,6 +371,11 @@
         <header class="page-header"><div><h1 class="page-title">Grupos de Trabajo</h1><p class="page-subtitle">Gestiona equipos y tareas</p></div><button class="add-goal-btn" id="newGroupBtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nuevo Grupo</button></header>
         <div class="groups-container" id="groupsContainer"></div>
       </section>
+      <!-- Goal Detail View -->
+      <section class="view-section" id="view-goal-detail">
+        <header class="page-header"><div><h1 class="page-title" id="goalDetailTitle">Objetivo</h1><p class="page-subtitle" id="goalDetailSubtitle">Detalles del objetivo</p></div><button class="add-goal-btn" onclick="App.switchView('goals')">← Volver</button></header>
+        <div class="goal-detail-container" id="goalDetailContainer"></div>
+      </section>
     </main>
   </div>
 
@@ -509,7 +515,7 @@ const App = {
     document.getElementById('view-' + view).classList.add('active');
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
     document.querySelector('.nav-item[data-view="' + view + '"]').classList.add('active');
-    const titles = { dashboard: 'Dashboard', goals: 'Objetivos', pendientes: 'Pendientes', journal: 'Diario', calendar: 'Calendario', groups: 'Grupos de Trabajo' };
+    const titles = { dashboard: 'Dashboard', goals: 'Objetivos', pendientes: 'Pendientes', calendar: 'Calendario', groups: 'Grupos de Trabajo', 'goal-detail': 'Detalle del Objetivo' };
     document.querySelector('.page-title').textContent = titles[view] || 'Dashboard';
     this.render();
   },
@@ -936,10 +942,44 @@ const App = {
         tasksHtml += '<div class="goal-task-item"><span class="goal-task-priority ' + task.priority + '" title="Prioridad: ' + task.priority + '"></span><span class="goal-task-title' + (task.status === 'done' ? ' completed' : '') + '">' + task.title + '</span><select class="goal-task-priority-select" onchange="App.updateTaskPriority(' + task.id + ', this.value)"><option value="low" ' + (task.priority === 'low' ? 'selected' : '') + '>Baja</option><option value="medium" ' + (task.priority === 'medium' ? 'selected' : '') + '>Media</option><option value="high" ' + (task.priority === 'high' ? 'selected' : '') + '>Alta</option></select></div>'; 
       });
       const div = document.createElement('div'); 
-      div.className = 'goal-card'; 
+      div.className = 'goal-card';
+      div.style.cursor = 'pointer';
+      div.onclick = function(e) { if (!e.target.closest('.goal-action-btn')) App.openGoalDetail(goal.id); }; 
       div.innerHTML = '<div class="goal-header"><span class="goal-title' + (goal.completed ? ' completed' : '') + '">' + goal.title + '</span><div class="goal-actions"><button class="goal-action-btn" onclick="App.editGoal(' + goal.id + ')">✏️</button><button class="goal-action-btn" onclick="App.toggleGoalComplete(' + goal.id + ')">' + (goal.completed ? '↩️' : '✅') + '</button><button class="goal-action-btn delete" onclick="App.deleteGoal(' + goal.id + ')">🗑️</button></div></div>' + (goal.description ? '<div class="goal-description">' + goal.description + '</div>' : '') + '<div class="goal-meta"><span>📅 ' + (goal.dueDate || 'Sin fecha') + '</span><span>🏷️ ' + goal.category + '</span>' + (goal.completed ? '<span style="color:var(--priority-low)">✓ Completado</span>' : '') + '</div><div class="goal-progress-bar"><div class="goal-progress-fill" style="width:' + progress + '%"></div></div><div class="goal-progress-text">' + completedTasks + '/' + goalTasks.length + ' tareas completadas</div><div class="goal-tasks-list">' + (tasksHtml || '<div class="goal-no-tasks">Sin tareas asignadas</div>') + '</div>'; 
       grid.appendChild(div); 
     });
+  },
+  openGoalDetail(goalId) {
+    const goal = this.data.goals.find(g => g.id === goalId);
+    if (!goal) return;
+    this.currentGoalId = goalId;
+    document.getElementById('goalDetailTitle').textContent = goal.title;
+    document.getElementById('goalDetailSubtitle').textContent = goal.description || 'Sin descripción';
+    const container = document.getElementById('goalDetailContainer');
+    const goalTasks = this.data.tasks.filter(t => t.goalId === goalId);
+    const completedTasks = goalTasks.filter(t => t.status === 'done').length;
+    const progress = goalTasks.length > 0 ? Math.round((completedTasks / goalTasks.length) * 100) : 0;
+    let tasksHtml = '<div style="margin-bottom:24px"><h3 style="margin-bottom:16px">Tareas (' + completedTasks + '/' + goalTasks.length + ')</h3>';
+    if (goalTasks.length === 0) {
+      tasksHtml += '<p style="color:var(--text-tertiary)">No hay tareas asignadas a este objetivo.</p>';
+    } else {
+      goalTasks.forEach(task => {
+        tasksHtml += '<div class="goal-task-item" style="padding:12px;background:var(--bg-tertiary);border-radius:8px;margin-bottom:8px;display:flex;align-items:center;gap:12px;"><input type="checkbox" ' + (task.status === 'done' ? 'checked' : '') + ' onchange="App.toggleTaskStatus(' + task.id + ')"><span class="goal-task-priority ' + task.priority + '" style="width:10px;height:10px;border-radius:50%;flex-shrink:0;"></span><span style="flex:1' + (task.status === 'done' ? 'text-decoration:line-through;color:var(--text-tertiary)' : '') + '">' + task.title + '</span><span style="font-size:12px;color:var(--text-tertiary)">' + (task.dueDate || 'Sin fecha') + '</span></div>';
+      });
+    }
+    tasksHtml += '</div>';
+    let suggestedHtml = '<div style="margin-bottom:24px"><h3 style="margin-bottom:16px">Tareas Sugeridas</h3>';
+    const suggested = this.data.suggestedTasks.filter(t => t.goalId === goalId);
+    if (suggested.length === 0) {
+      suggestedHtml += '<p style="color:var(--text-tertiary)">No hay tareas sugeridas.</p>';
+    } else {
+      suggested.forEach(task => {
+        suggestedHtml += '<div class="suggested-task" style="padding:12px;background:var(--bg-tertiary);border-radius:8px;margin-bottom:8px;display:flex;align-items:center;gap:12px;"><button class="suggested-task-btn" style="background:var(--accent-blue);color:white;border:none;border-radius:4px;padding:4px 8px;cursor:pointer;" onclick="App.addSuggestedToTask(' + task.id + ')">➕</button><span>' + task.title + '</span></div>';
+      });
+    }
+    suggestedHtml += '</div>';
+    container.innerHTML = '<div style="background:var(--bg-secondary);border:1px solid var(--glass-border);border-radius:16px;padding:24px;margin-bottom:24px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><span style="font-size:14px;color:var(--text-tertiary)">Progreso</span><span style="font-size:24px;font-weight:bold">' + progress + '%</span></div><div class="goal-progress-bar" style="height:8px"><div class="goal-progress-fill" style="width:' + progress + '%"></div></div></div>' + tasksHtml + suggestedHtml;
+    this.switchView('goal-detail');
   },
   renderSuggestedTasks() {
     const section = document.getElementById('suggestedSection');
