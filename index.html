@@ -686,6 +686,25 @@ const App = {
       this.render(); 
     } 
   },
+  toggleTaskStatus(taskId) {
+    this.load();
+    const task = this.data.tasks.find(t => t.id === taskId);
+    if (task) {
+      // Toggle between done and progress
+      task.status = task.status === 'done' ? 'progress' : 'done';
+      this.save();
+      // Check if all tasks in goal are done
+      if (task.goalId) {
+        const goalTasks = this.data.tasks.filter(t => t.goalId === task.goalId);
+        const allDone = goalTasks.length > 0 && goalTasks.every(t => t.status === 'done');
+        const goal = this.data.goals.find(g => g.id === task.goalId);
+        if (goal) {
+          goal.completed = allDone;
+        }
+      }
+      this.render();
+    }
+  },
   closeTaskDetail() { document.getElementById('taskDetailModal').classList.remove('active'); },
   saveJournal() {
     const date = document.getElementById('journalDate').value;
