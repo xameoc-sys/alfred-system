@@ -702,7 +702,12 @@ const App = {
           goal.completed = allDone;
         }
       }
-      this.render();
+      // Refresh goal detail view if viewing it
+      if (this.currentGoalId && this.currentView === 'goal-detail') {
+        this.openGoalDetail(this.currentGoalId);
+      } else {
+        this.render();
+      }
     }
   },
   closeTaskDetail() { document.getElementById('taskDetailModal').classList.remove('active'); },
