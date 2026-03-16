@@ -151,6 +151,26 @@
     .goal-detail-container span { color: #000000; }
     .goal-detail-container .goal-task-item { background: #f5f5f5 !important; border: 1px solid #e0e0e0; }
     .goal-detail-container .suggested-task { background: #f5f5f5 !important; border: 1px solid #e0e0e0; }
+    .group-tabs { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 1px solid var(--glass-border); padding-bottom: 12px; }
+    .group-tab { background: transparent; border: 1px solid var(--glass-border); border-radius: 8px; padding: 10px 20px; font-size: 14px; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; }
+    .group-tab:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+    .group-tab.active { background: var(--accent-blue); border-color: var(--accent-blue); color: white; }
+    .group-detail-container { max-width: 1200px; margin: 0 auto; }
+    .group-user-column { background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: 12px; padding: 16px; min-height: 200px; }
+    .group-user-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--glass-border); }
+    .group-user-name { font-weight: 600; color: #000; }
+    .group-user-progress { font-size: 12px; color: #656565; }
+    .group-user-tasks { display: flex; flex-direction: column; gap: 8px; }
+    .group-user-task { padding: 8px; background: #f5f5f5; border-radius: 6px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+    .group-user-task .task-title { flex: 1; color: #000; }
+    .group-user-task .task-status { font-size: 11px; padding: 2px 6px; border-radius: 4px; }
+    .group-user-task .task-status.todo { background: var(--bg-tertiary); color: var(--text-secondary); }
+    .group-user-task .task-status.progress { background: rgba(0,137,203,0.2); color: var(--accent-blue); }
+    .group-user-task .task-status.done { background: rgba(0,204,0,0.2); color: #00cc00; }
+    .group-dashboard-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .group-dashboard-stat { background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: 12px; padding: 20px; text-align: center; }
+    .group-dashboard-stat-value { font-size: 32px; font-weight: bold; color: var(--accent-blue); }
+    .group-dashboard-stat-label { font-size: 14px; color: #656565; margin-top: 4px; }
     .goal-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-medium); border-color: var(--accent-blue); }
     .goal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
     .goal-title { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 600; }
@@ -376,6 +396,15 @@
         <header class="page-header"><div><h1 class="page-title">Grupos de Trabajo</h1><p class="page-subtitle">Gestiona equipos y tareas</p></div><button class="add-goal-btn" id="newGroupBtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nuevo Grupo</button></header>
         <div class="groups-container" id="groupsContainer"></div>
       </section>
+      <!-- Group Detail View -->
+      <section class="view-section" id="view-group-detail">
+        <header class="page-header"><div><h1 class="page-title" id="groupDetailTitle">Grupo</h1><p class="page-subtitle" id="groupDetailSubtitle">Detalles del grupo</p></div><button class="add-goal-btn" onclick="App.switchView('groups')">← Volver</button></header>
+        <div class="group-tabs">
+          <button class="group-tab active" data-tab="rendimiento" onclick="App.switchGroupTab('rendimiento')">Rendimiento</button>
+          <button class="group-tab" data-tab="dashboard" onclick="App.switchGroupTab('dashboard')">Dashboard</button>
+        </div>
+        <div class="group-detail-container" id="groupDetailContainer"></div>
+      </section>
       <!-- Goal Detail View -->
       <section class="view-section" id="view-goal-detail">
         <header class="page-header"><div><h1 class="page-title" id="goalDetailTitle">Objetivo</h1><p class="page-subtitle" id="goalDetailSubtitle">Detalles del objetivo</p></div><button class="add-goal-btn" onclick="App.switchView('goals')">← Volver</button></header>
@@ -501,11 +530,11 @@ const App = {
   showRegister() { document.getElementById('loginForm').style.display = 'none'; document.getElementById('registerForm').style.display = 'block'; },
   showLogin() { document.getElementById('registerForm').style.display = 'none'; document.getElementById('loginForm').style.display = 'block'; },
   logout() { this.data.currentUser = null; this.save(); this.checkLogin(); },
-  load() { 
-    const saved = localStorage.getItem('alfred-data'); 
-    if (saved) { 
-      const parsed = JSON.parse(saved); 
-      this.data = { ...this.data, ...parsed }; 
+  load() {
+    const saved = localStorage.getItem('alfred-data');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      this.data = { ...this.data, ...parsed };
     }
     // Create default admin if no users
     if (!this.data.users || this.data.users.length === 0) {
@@ -520,7 +549,7 @@ const App = {
     document.getElementById('view-' + view).classList.add('active');
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
     document.querySelector('.nav-item[data-view="' + view + '"]').classList.add('active');
-    const titles = { dashboard: 'Dashboard', goals: 'Objetivos', pendientes: 'Pendientes', calendar: 'Calendario', groups: 'Grupos de Trabajo', 'goal-detail': 'Detalle del Objetivo' };
+    const titles = { dashboard: 'Dashboard', goals: 'Objetivos', pendientes: 'Pendientes', calendar: 'Calendario', groups: 'Grupos de Trabajo', 'goal-detail': 'Detalle del Objetivo', 'group-detail': 'Detalle del Grupo' };
     document.querySelector('.page-title').textContent = titles[view] || 'Dashboard';
     this.render();
   },
@@ -560,15 +589,15 @@ const App = {
     document.getElementById('groupTaskForm').addEventListener('submit', (e) => { e.preventDefault(); this.saveGroupTask(); });
     this.setupDragDrop();
   },
-  openModal(status) { 
-    this.currentStatus = status; 
-    document.getElementById('modalTitle').textContent = 'Nueva Tarea'; 
+  openModal(status) {
+    this.currentStatus = status;
+    document.getElementById('modalTitle').textContent = 'Nueva Tarea';
     // Populate goal selector
     const goalSelect = document.getElementById('taskGoal');
     goalSelect.innerHTML = '<option value="">Sin objetivo</option>';
     this.data.goals.forEach(g => { goalSelect.innerHTML += '<option value="' + g.id + '">' + g.title + '</option>'; });
-    document.getElementById('taskModal').classList.add('active'); 
-    document.getElementById('taskTitle').focus(); 
+    document.getElementById('taskModal').classList.add('active');
+    document.getElementById('taskTitle').focus();
   },
   closeModal() { document.getElementById('taskModal').classList.remove('active'); document.getElementById('taskForm').reset(); },
   openGoalModal() { document.getElementById('goalModalTitle').textContent = 'Nuevo Objetivo'; document.getElementById('goalModal').classList.add('active'); document.getElementById('goalTitle').focus(); },
@@ -619,7 +648,7 @@ const App = {
     document.getElementById('goalModal').classList.add('active');
     document.getElementById('goalTitle').focus();
   },
-  openJournalModal(entryId) { 
+  openJournalModal(entryId) {
     this.editingJournalId = entryId || null;
     document.getElementById('journalModalTitle').textContent = entryId ? 'Editar Entrada' : 'Nueva Entrada';
     if (entryId) {
@@ -634,8 +663,8 @@ const App = {
       document.getElementById('journalTitle').value = '';
       document.getElementById('journalContent').value = '';
     }
-    document.getElementById('journalModal').classList.add('active'); 
-    document.getElementById('journalTitle').focus(); 
+    document.getElementById('journalModal').classList.add('active');
+    document.getElementById('journalTitle').focus();
   },
   closeJournalModal() { document.getElementById('journalModal').classList.remove('active'); document.getElementById('journalForm').reset(); this.editingJournalId = null; },
   openTaskDetail(taskId) {
@@ -648,7 +677,7 @@ const App = {
     let assigneeOptions = '<option value="">Sin asignar</option>';
     this.data.users.forEach(u => { assigneeOptions += '<option value="' + u.username + '" ' + (task.assignee === u.username ? 'selected' : '') + '>' + u.username + '</option>'; });
     document.getElementById('taskDetailTitle').textContent = task.title;
-    document.getElementById('taskDetailContent').innerHTML = 
+    document.getElementById('taskDetailContent').innerHTML =
       '<div class="task-detail-row"><div class="task-detail-label">Descripción</div><div class="task-detail-value">' + (task.description || 'Sin descripción') + '</div></div>' +
       '<div class="task-detail-row"><div class="task-detail-label">Fecha de entrega</div><div class="task-detail-value">' + (task.dueDate || 'Sin fecha') + '</div></div>' +
       '<div class="task-detail-row"><div class="task-detail-label">Prioridad</div><div class="task-detail-value priority-' + task.priority + '">' + (priorityLabels[task.priority] || 'Media') + '</div></div>' +
@@ -658,22 +687,22 @@ const App = {
       '<div class="task-detail-row"><button class="btn btn-secondary" onclick="App.deleteTask(' + task.id + '); App.closeTaskDetail();" style="margin-top:12px;width:100%;color:var(--priority-high);border-color:var(--priority-high);">Eliminar Tarea</button></div>';
     document.getElementById('taskDetailModal').classList.add('active');
   },
-  updateTaskAssignee(taskId, assignee) { 
+  updateTaskAssignee(taskId, assignee) {
     // Reload data first to get latest
     this.load();
-    const task = this.data.tasks.find(t => t.id === taskId); 
-    if (task) { 
-      task.assignee = assignee || null; 
-      this.save(); 
-      this.render(); 
-    } 
+    const task = this.data.tasks.find(t => t.id === taskId);
+    if (task) {
+      task.assignee = assignee || null;
+      this.save();
+      this.render();
+    }
   },
-  updateTaskStatus(taskId, status) { 
+  updateTaskStatus(taskId, status) {
     this.load();
-    const task = this.data.tasks.find(t => t.id === taskId); 
-    if (task) { 
-      task.status = status; 
-      this.save(); 
+    const task = this.data.tasks.find(t => t.id === taskId);
+    if (task) {
+      task.status = status;
+      this.save();
       // Check if all tasks in goal are done
       if (task.goalId) {
         const goalTasks = this.data.tasks.filter(t => t.goalId === task.goalId);
@@ -683,8 +712,8 @@ const App = {
           goal.completed = allDone;
         }
       }
-      this.render(); 
-    } 
+      this.render();
+    }
   },
   toggleTaskStatus(taskId) {
     this.load();
@@ -819,9 +848,93 @@ const App = {
       groupTasks.forEach(task => { const assignedClass = task.assignee ? '' : 'unassigned'; tasksHtml += '<div class="kanban-card" onclick="App.openGroupTaskDetail(' + task.id + ')" style="margin-bottom:8px;cursor:pointer;"><div class="card-header"><span class="card-title">' + task.title + '</span><span class="card-priority ' + task.priority + '"></span>' + (!task.assignee ? '<span class="card-priority" style="background:var(--text-tertiary)" title="Sin asignar"></span>' : '') + '</div></div>'; });
       const div = document.createElement('div');
       div.className = 'group-card';
+      div.style.cursor = 'pointer';
+      div.onclick = function(e) { if (!e.target.closest('.goal-action-btn')) App.openGroupDetail(group.id); };
       div.innerHTML = '<div class="group-header"><span class="group-title">' + group.name + '</span><div class="goal-actions"><button class="goal-action-btn" onclick="App.openGroupTaskModal(' + group.id + ')">➕</button><button class="goal-action-btn" onclick="App.editGroup(' + group.id + ')">✏️</button><button class="goal-action-btn delete" onclick="App.deleteGroup(' + group.id + ')">🗑️</button></div></div><div class="group-members">' + membersHtml + '</div>' + (tasksHtml ? '<div class="group-tasks"><div class="group-tasks-title">Tareas</div>' + tasksHtml + '</div>' : '<div class="group-empty" style="padding:20px">No hay tareas</div>');
-      container.appendChild(div);
+      container.appendChild(div); 
     });
+  },
+  openGroupDetail(groupId) {
+    const group = this.data.groups.find(g => g.id === groupId);
+    if (!group) return;
+    this.currentGroupId = groupId;
+    document.getElementById('groupDetailTitle').textContent = group.name;
+    document.getElementById('groupDetailSubtitle').textContent = (group.members && group.members.length) ? group.members.length + ' miembros' : 'Sin miembros';
+    this.currentGroupTab = 'rendimiento';
+    this.renderGroupDetail();
+    this.switchView('group-detail');
+  },
+  switchGroupTab(tab) {
+    this.currentGroupTab = tab;
+    document.querySelectorAll('.group-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector('.group-tab[data-tab="' + tab + '"]').classList.add('active');
+    this.renderGroupDetail();
+  },
+  renderGroupDetail() {
+    const container = document.getElementById('groupDetailContainer');
+    const group = this.data.groups.find(g => g.id === this.currentGroupId);
+    if (!group) return;
+    const groupTasks = this.data.groupTasks.filter(t => t.groupId === group.id);
+    const priorityOrder = { high: 1, medium: 2, low: 3 };
+    if (this.currentGroupTab === 'rendimiento') {
+      // Group by assignee
+      const users = group.members || [];
+      let html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">';
+      users.forEach(user => {
+        const userTasks = groupTasks.filter(t => t.assignee === user);
+        const totalTasks = userTasks.length;
+        const doneTasks = userTasks.filter(t => t.status === 'done').length;
+        const progress = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
+        // Sort by priority (high first)
+        const sortedTasks = [...userTasks].sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+        let tasksHtml = '<div class="group-user-tasks">';
+        if (sortedTasks.length === 0) {
+          tasksHtml += '<div style="color:#656565;font-size:13px;">Sin tareas asignadas</div>';
+        } else {
+          sortedTasks.forEach(task => {
+            const statusLabel = task.status === 'todo' ? 'Por Hacer' : (task.status === 'progress' ? 'En Progreso' : 'Hecho');
+            tasksHtml += '<div class="group-user-task"><span class="goal-task-priority ' + task.priority + '" style="width:8px;height:8px;border-radius:50%;flex-shrink:0;"></span><span class="task-title' + (task.status === 'done' ? ' completed' : '') + '"' + (task.status === 'done' ? 'style="text-decoration:line-through;color:#9c9c9c"' : '') + '>' + task.title + '</span><span class="task-status ' + task.status + '">' + statusLabel + '</span></div>';
+          });
+        }
+        tasksHtml += '</div>';
+        html += '<div class="group-user-column"><div class="group-user-header"><span class="group-user-name">' + user + '</span><span class="group-user-progress">' + doneTasks + '/' + totalTasks + ' (' + progress + '%)</span></div>' + tasksHtml + '</div>';
+      });
+      // Add unassigned tasks
+      const unassignedTasks = groupTasks.filter(t => !t.assignee);
+      if (unassignedTasks.length > 0) {
+        const sortedTasks = [...unassignedTasks].sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+        let tasksHtml = '<div class="group-user-tasks">';
+        sortedTasks.forEach(task => {
+          const statusLabel = task.status === 'todo' ? 'Por Hacer' : (task.status === 'progress' ? 'En Progreso' : 'Hecho');
+          tasksHtml += '<div class="group-user-task"><span class="goal-task-priority ' + task.priority + '" style="width:8px;height:8px;border-radius:50%;flex-shrink:0;"></span><span class="task-title">' + task.title + '</span><span class="task-status ' + task.status + '">' + statusLabel + '</span></div>';
+        });
+        tasksHtml += '</div>';
+        html += '<div class="group-user-column"><div class="group-user-header"><span class="group-user-name">⚠️ Sin Asignar</span><span class="group-user-progress">' + unassignedTasks.length + ' tareas</span></div>' + tasksHtml + '</div>';
+      }
+      html += '</div>';
+      container.innerHTML = html;
+    } else {
+      // Dashboard tab
+      const totalTasks = groupTasks.length;
+      const todoTasks = groupTasks.filter(t => t.status === 'todo').length;
+      const progressTasks = groupTasks.filter(t => t.status === 'progress').length;
+      const doneTasks = groupTasks.filter(t => t.status === 'done').length;
+      const progress = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
+      // Tasks by priority
+      const highTasks = groupTasks.filter(t => t.priority === 'high').length;
+      const mediumTasks = groupTasks.filter(t => t.priority === 'medium').length;
+      const lowTasks = groupTasks.filter(t => t.priority === 'low').length;
+      // Tasks by user
+      let usersHtml = '<div style="margin-top:24px"><h3 style="color:#000;margin-bottom:16px;">Por Usuario</h3><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;">';
+      const users = group.members || [];
+      users.forEach(user => {
+        const userTasks = groupTasks.filter(t => t.assignee === user);
+        const userDone = userTasks.filter(t => t.status === 'done').length;
+        usersHtml += '<div style="background:#f5f5f5;padding:12px;border-radius:8px;"><div style="font-weight:600;color:#000">' + user + '</div><div style="font-size:13px;color:#656565">' + userDone + '/' + userTasks.length + ' completadas</div></div>';
+      });
+      usersHtml += '</div></div>';
+      container.innerHTML = '<div class="group-dashboard-stats"><div class="group-dashboard-stat"><div class="group-dashboard-stat-value">' + totalTasks + '</div><div class="group-dashboard-stat-label">Total de Tareas</div></div><div class="group-dashboard-stat"><div class="group-dashboard-stat-value">' + todoTasks + '</div><div class="group-dashboard-stat-label">Por Hacer</div></div><div class="group-dashboard-stat"><div class="group-dashboard-stat-value">' + progressTasks + '</div><div class="group-dashboard-stat-label">En Progreso</div></div><div class="group-dashboard-stat"><div class="group-dashboard-stat-value">' + doneTasks + '</div><div class="group-dashboard-stat-label">Completadas</div></div><div class="group-dashboard-stat"><div class="group-dashboard-stat-value">' + progress + '%</div><div class="group-dashboard-stat-label">Progreso Total</div></div></div><div style="margin-top:24px"><h3 style="color:#000;margin-bottom:16px;">Por Prioridad</h3><div style="display:flex;gap:16px;"><div style="background:#f5f5f5;padding:16px;border-radius:8px;flex:1;text-align:center;"><div style="font-size:24px;font-weight:bold;color:#ff0000">' + highTasks + '</div><div style="font-size:13px;color:#656565">Alta</div></div><div style="background:#f5f5f5;padding:16px;border-radius:8px;flex:1;text-align:center;"><div style="font-size:24px;font-weight:bold;color:#ffcc00">' + mediumTasks + '</div><div style="font-size:13px;color:#656565">Media</div></div><div style="background:#f5f5f5;padding:16px;border-radius:8px;flex:1;text-align:center;"><div style="font-size:24px;font-weight:bold;color:#00cc00">' + lowTasks + '</div><div style="font-size:13px;color:#656565">Baja</div></div></div></div>' + usersHtml;
+    }
   },
   openGroupTaskDetail(taskId) {
     const task = this.data.groupTasks.find(t => t.id === taskId);
@@ -836,7 +949,7 @@ const App = {
       });
     }
     document.getElementById('taskDetailTitle').textContent = task.title;
-    document.getElementById('taskDetailContent').innerHTML = 
+    document.getElementById('taskDetailContent').innerHTML =
       '<div class="task-detail-row"><div class="task-detail-label">Descripción</div><div class="task-detail-value">' + (task.description || 'Sin descripción') + '</div></div>' +
       '<div class="task-detail-row"><div class="task-detail-label">Fecha de entrega</div><div class="task-detail-value">' + (task.dueDate || 'Sin fecha') + '</div></div>' +
       '<div class="task-detail-row"><div class="task-detail-label">Prioridad</div><div class="task-detail-value priority-' + task.priority + '">' + (priorityLabels[task.priority] || 'Media') + '</div></div>' +
@@ -846,8 +959,8 @@ const App = {
       '<div class="task-detail-row"><button class="btn btn-secondary" onclick="App.deleteGroupTask(' + task.id + '); App.closeTaskDetail();" style="margin-top:12px;width:100%;">Eliminar Tarea</button></div>';
     document.getElementById('taskDetailModal').classList.add('active');
   },
-  updateGroupTaskAssignee(taskId, assignee) { this.load(); const task = this.data.groupTasks.find(t => t.id === taskId); if (task) { task.assignee = assignee; this.save(); this.render(); } },
-  updateGroupTaskStatus(taskId, status) { this.load(); const task = this.data.groupTasks.find(t => t.id === taskId); if (task) { task.status = status; this.save(); this.render(); } },
+  updateGroupTaskAssignee(taskId, assignee) { this.load(); const task = this.data.groupTasks.find(t => t.id === taskId); if (task) { task.assignee = assignee; this.save(); if (this.currentGroupId && this.currentView === 'group-detail') { this.renderGroupDetail(); } else { this.render(); } } },
+  updateGroupTaskStatus(taskId, status) { this.load(); const task = this.data.groupTasks.find(t => t.id === taskId); if (task) { task.status = status; this.save(); if (this.currentGroupId && this.currentView === 'group-detail') { this.renderGroupDetail(); } else { this.render(); } } },
   deleteGoal(id) { if (confirm('¿Eliminar este objetivo?')) { this.data.goals = this.data.goals.filter(g => g.id !== id); this.data.tasks = this.data.tasks.filter(t => t.goalId !== id); this.data.suggestedTasks = this.data.suggestedTasks.filter(t => t.goalId !== id); this.save(); this.render(); } },
   toggleGoalComplete(id) { this.load(); const goal = this.data.goals.find(g => g.id === id); if (goal) { goal.completed = !goal.completed; this.save(); this.render(); } },
   addSuggestedToTask(taskId) {
@@ -861,19 +974,19 @@ const App = {
     document.querySelectorAll('.kanban-column').forEach(col => {
       col.addEventListener('dragover', (e) => { e.preventDefault(); col.classList.add('drag-over'); });
       col.addEventListener('dragleave', () => col.classList.remove('drag-over'));
-      col.addEventListener('drop', (e) => { 
-        e.preventDefault(); 
-        col.classList.remove('drag-over'); 
-        if (draggedItem) { 
-          const newStatus = col.dataset.status; 
-          const taskId = parseFloat(draggedItem.dataset.id); 
+      col.addEventListener('drop', (e) => {
+        e.preventDefault();
+        col.classList.remove('drag-over');
+        if (draggedItem) {
+          const newStatus = col.dataset.status;
+          const taskId = parseFloat(draggedItem.dataset.id);
           const taskIndex = this.data.tasks.findIndex(t => t.id === taskId);
-          if (taskIndex !== -1) { 
-            this.data.tasks[taskIndex].status = newStatus; 
-            this.save(); 
-            this.render(); 
-          } 
-        } 
+          if (taskIndex !== -1) {
+            this.data.tasks[taskIndex].status = newStatus;
+            this.save();
+            this.render();
+          }
+        }
       });
     });
     document.addEventListener('dragstart', (e) => { if (e.target.classList.contains('kanban-card')) { draggedItem = e.target; e.target.style.opacity = '0.5'; } });
@@ -972,20 +1085,20 @@ const App = {
     const grid = document.getElementById('goalsGrid');
     grid.innerHTML = '';
     if (this.data.goals.length === 0) { grid.innerHTML = '<div class="empty-state"><div class="empty-icon">🎯</div><p>No hay objetivos. ¡Crea uno!</p></div>'; return; }
-    this.data.goals.forEach(goal => { 
-      const goalTasks = this.data.tasks.filter(t => t.goalId === goal.id); 
-      const completedTasks = goalTasks.filter(t => t.status === 'done').length; 
-      const progress = goalTasks.length > 0 ? Math.round((completedTasks / goalTasks.length) * 100) : 0; 
+    this.data.goals.forEach(goal => {
+      const goalTasks = this.data.tasks.filter(t => t.goalId === goal.id);
+      const completedTasks = goalTasks.filter(t => t.status === 'done').length;
+      const progress = goalTasks.length > 0 ? Math.round((completedTasks / goalTasks.length) * 100) : 0;
       let tasksHtml = '';
-      goalTasks.forEach(task => { 
-        tasksHtml += '<div class="goal-task-item"><span class="goal-task-priority ' + task.priority + '" title="Prioridad: ' + task.priority + '"></span><span class="goal-task-title' + (task.status === 'done' ? ' completed' : '') + '">' + task.title + '</span><select class="goal-task-priority-select" onchange="App.updateTaskPriority(' + task.id + ', this.value)"><option value="low" ' + (task.priority === 'low' ? 'selected' : '') + '>Baja</option><option value="medium" ' + (task.priority === 'medium' ? 'selected' : '') + '>Media</option><option value="high" ' + (task.priority === 'high' ? 'selected' : '') + '>Alta</option></select></div>'; 
+      goalTasks.forEach(task => {
+        tasksHtml += '<div class="goal-task-item"><span class="goal-task-priority ' + task.priority + '" title="Prioridad: ' + task.priority + '"></span><span class="goal-task-title' + (task.status === 'done' ? ' completed' : '') + '">' + task.title + '</span><select class="goal-task-priority-select" onchange="App.updateTaskPriority(' + task.id + ', this.value)"><option value="low" ' + (task.priority === 'low' ? 'selected' : '') + '>Baja</option><option value="medium" ' + (task.priority === 'medium' ? 'selected' : '') + '>Media</option><option value="high" ' + (task.priority === 'high' ? 'selected' : '') + '>Alta</option></select></div>';
       });
-      const div = document.createElement('div'); 
+      const div = document.createElement('div');
       div.className = 'goal-card';
       div.style.cursor = 'pointer';
-      div.onclick = function(e) { if (!e.target.closest('.goal-action-btn')) App.openGoalDetail(goal.id); }; 
-      div.innerHTML = '<div class="goal-header"><span class="goal-title' + (goal.completed ? ' completed' : '') + '">' + goal.title + '</span><div class="goal-actions"><button class="goal-action-btn" onclick="App.editGoal(' + goal.id + ')">✏️</button><button class="goal-action-btn" onclick="App.toggleGoalComplete(' + goal.id + ')">' + (goal.completed ? '↩️' : '✅') + '</button><button class="goal-action-btn delete" onclick="App.deleteGoal(' + goal.id + ')">🗑️</button></div></div>' + (goal.description ? '<div class="goal-description">' + goal.description + '</div>' : '') + '<div class="goal-meta"><span>📅 ' + (goal.dueDate || 'Sin fecha') + '</span><span>🏷️ ' + goal.category + '</span>' + (goal.completed ? '<span style="color:var(--priority-low)">✓ Completado</span>' : '') + '</div><div class="goal-progress-bar"><div class="goal-progress-fill" style="width:' + progress + '%"></div></div><div class="goal-progress-text">' + completedTasks + '/' + goalTasks.length + ' tareas completadas</div><div class="goal-tasks-list">' + (tasksHtml || '<div class="goal-no-tasks">Sin tareas asignadas</div>') + '</div>'; 
-      grid.appendChild(div); 
+      div.onclick = function(e) { if (!e.target.closest('.goal-action-btn')) App.openGoalDetail(goal.id); };
+      div.innerHTML = '<div class="goal-header"><span class="goal-title' + (goal.completed ? ' completed' : '') + '">' + goal.title + '</span><div class="goal-actions"><button class="goal-action-btn" onclick="App.editGoal(' + goal.id + ')">✏️</button><button class="goal-action-btn" onclick="App.toggleGoalComplete(' + goal.id + ')">' + (goal.completed ? '↩️' : '✅') + '</button><button class="goal-action-btn delete" onclick="App.deleteGoal(' + goal.id + ')">🗑️</button></div></div>' + (goal.description ? '<div class="goal-description">' + goal.description + '</div>' : '') + '<div class="goal-meta"><span>📅 ' + (goal.dueDate || 'Sin fecha') + '</span><span>🏷️ ' + goal.category + '</span>' + (goal.completed ? '<span style="color:var(--priority-low)">✓ Completado</span>' : '') + '</div><div class="goal-progress-bar"><div class="goal-progress-fill" style="width:' + progress + '%"></div></div><div class="goal-progress-text">' + completedTasks + '/' + goalTasks.length + ' tareas completadas</div><div class="goal-tasks-list">' + (tasksHtml || '<div class="goal-no-tasks">Sin tareas asignadas</div>') + '</div>';
+      grid.appendChild(div);
     });
   },
   openGoalDetail(goalId) {
@@ -1028,14 +1141,14 @@ const App = {
     list.innerHTML = '';
     this.data.suggestedTasks.forEach(task => { const div = document.createElement('div'); div.className = 'suggested-task'; div.innerHTML = '<button class="suggested-task-btn" onclick="App.addSuggestedToTask(' + task.id + ')">➕</button><div><strong>' + task.title + '</strong><br><small>' + task.desc + '</small></div>'; list.appendChild(div); });
   },
-  createCard(task) { 
-    const div = document.createElement('div'); 
-    div.className = 'kanban-card'; 
-    div.draggable = true; 
-    div.dataset.id = task.id; 
+  createCard(task) {
+    const div = document.createElement('div');
+    div.className = 'kanban-card';
+    div.draggable = true;
+    div.dataset.id = task.id;
     div.onclick = function() { App.openTaskDetail(task.id); };
-    div.innerHTML = '<div class="card-header"><span class="card-title">' + task.title + '</span><span class="card-priority ' + task.priority + '"></span></div>'; 
-    return div; 
+    div.innerHTML = '<div class="card-header"><span class="card-title">' + task.title + '</span><span class="card-priority ' + task.priority + '"></span></div>';
+    return div;
   },
   updateProgressRings() {
     const total = this.data.tasks.length || 1;
