@@ -146,9 +146,11 @@
     .goals-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
     .goal-card { background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: 16px; padding: 24px; transition: all 0.3s ease; }
     .goal-detail-container { max-width: 800px; margin: 0 auto; color: #000000; }
-    .goal-detail-container h3 { color: #000000; }
+    .goal-detail-container h3 { color: #000000; margin-bottom: 16px; font-weight: 600; }
     .goal-detail-container p { color: #000000; }
     .goal-detail-container span { color: #000000; }
+    .goal-detail-container .goal-task-item { background: #f5f5f5 !important; border: 1px solid #e0e0e0; }
+    .goal-detail-container .suggested-task { background: #f5f5f5 !important; border: 1px solid #e0e0e0; }
     .goal-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-medium); border-color: var(--accent-blue); }
     .goal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
     .goal-title { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 600; }
@@ -967,7 +969,7 @@ const App = {
       tasksHtml += '<p style="color:#656565">No hay tareas asignadas a este objetivo.</p>';
     } else {
       goalTasks.forEach(task => {
-        tasksHtml += '<div class="goal-task-item" style="padding:12px;background:var(--bg-tertiary);border-radius:8px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer" onclick="App.openTaskDetail(' + task.id + ')"><input type="checkbox" ' + (task.status === 'done' ? 'checked' : '') + ' onclick="event.stopPropagation();App.toggleTaskStatus(' + task.id + ')"><span class="goal-task-priority ' + task.priority + '" style="width:10px;height:10px;border-radius:50%;flex-shrink:0;"></span><span style="flex:1;color:#000' + (task.status === 'done' ? 'text-decoration:line-through;color:#656565' : '') + '">' + task.title + '</span><span style="font-size:12px;color:#656565">' + (task.dueDate || 'Sin fecha') + '</span></div>';
+        tasksHtml += '<div class="goal-task-item" style="padding:12px;background:#f5f5f5;border:1px solid #e0e0e0;border-radius:8px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer" onclick="App.openTaskDetail(' + task.id + ')"><input type="checkbox" ' + (task.status === 'done' ? 'checked' : '') + ' onclick="event.stopPropagation();App.toggleTaskStatus(' + task.id + ')"><span class="goal-task-priority ' + task.priority + '" style="width:10px;height:10px;border-radius:50%;flex-shrink:0;"></span><span style="flex:1;color:#000' + (task.status === 'done' ? 'text-decoration:line-through;color:#9c9c9c' : '') + '">' + task.title + '</span><span style="font-size:12px;color:#656565">' + (task.dueDate || 'Sin fecha') + '</span></div>';
       });
     }
     tasksHtml += '</div>';
@@ -977,7 +979,7 @@ const App = {
       suggestedHtml += '<p style="color:#656565">No hay tareas sugeridas.</p>';
     } else {
       suggested.forEach(task => {
-        suggestedHtml += '<div class="suggested-task" style="padding:12px;background:var(--bg-tertiary);border-radius:8px;margin-bottom:8px;display:flex;align-items:center;gap:12px;"><button class="suggested-task-btn" style="background:var(--accent-blue);color:white;border:none;border-radius:4px;padding:4px 8px;cursor:pointer;" onclick="App.addSuggestedToTask(' + task.id + ')">➕</button><span style="color:#000">' + task.title + '</span></div>';
+        suggestedHtml += '<div class="suggested-task" style="padding:12px;background:#f5f5f5;border:1px solid #e0e0e0;border-radius:8px;margin-bottom:8px;display:flex;align-items:center;gap:12px;"><button class="suggested-task-btn" style="background:var(--accent-blue);color:white;border:none;border-radius:4px;padding:4px 8px;cursor:pointer;" onclick="App.addSuggestedToTask(' + task.id + ')">➕</button><span style="color:#000">' + task.title + '</span></div>';
       });
     }
     suggestedHtml += '</div>';
