@@ -338,7 +338,7 @@
             <div class="kanban-column" data-status="todo"><div class="column-header"><div class="column-title"><span class="column-dot todo"></span>Por Hacer</div><span class="column-count" id="count-todo">0</span></div><div class="column-cards" id="cards-todo"></div><button class="add-card-btn" data-status="todo">+ Añadir tarea</button></div>
             <div class="kanban-column" data-status="progress"><div class="column-header"><div class="column-title"><span class="column-dot progress"></span>En Progreso</div><span class="column-count" id="count-progress">0</span></div><div class="column-cards" id="cards-progress"></div><button class="add-card-btn" data-status="progress">+ Añadir tarea</button></div>
             <div class="kanban-column" data-status="done"><div class="column-header"><div class="column-title"><span class="column-dot done"></span>Hecho</div><span class="column-count" id="count-done">0</span></div><div class="column-cards" id="cards-done"></div><button class="add-card-btn" data-status="done">+ Añadir tarea</button></div>
-            <div class="kanban-column" data-status="archive"><div class="column-header"><div class="column-title"><span class="column-dot archive"></span>Archivo</div><span class="column-count" id="count-archive">0</span></div><div class="column-cards" id="cards-archive"></div></div>
+            <div class="kanban-column" data-status="archive"><div class="column-header"><div class="column-title"><span class="column-dot archive"></span>Backlog</div><span class="column-count" id="count-archive">0</span></div><div class="column-cards" id="cards-archive"></div></div>
           </div>
         </section>
       </section>
@@ -643,7 +643,7 @@ const App = {
     if (!task) return;
     const goal = task.goalId ? this.data.goals.find(g => g.id === task.goalId) : null;
     const priorityLabels = { high: 'Alta', medium: 'Media', low: 'Baja' };
-    const statusLabels = { todo: 'Por Hacer', progress: 'En Progreso', done: 'Hecho', archive: 'Archivo' };
+    const statusLabels = { todo: 'Por Hacer', progress: 'En Progreso', done: 'Hecho', archive: 'Backlog' };
     // Build assignee options with all users
     let assigneeOptions = '<option value="">Sin asignar</option>';
     this.data.users.forEach(u => { assigneeOptions += '<option value="' + u.username + '" ' + (task.assignee === u.username ? 'selected' : '') + '>' + u.username + '</option>'; });
@@ -654,7 +654,7 @@ const App = {
       '<div class="task-detail-row"><div class="task-detail-label">Prioridad</div><div class="task-detail-value priority-' + task.priority + '">' + (priorityLabels[task.priority] || 'Media') + '</div></div>' +
       '<div class="task-detail-row"><div class="task-detail-label">Objetivo</div><div class="task-detail-value">' + (goal ? goal.title : 'Sin objetivo') + '</div></div>' +
       '<div class="task-detail-row"><div class="task-detail-label">Asignado a</div><select class="form-select" onchange="App.updateTaskAssignee(' + task.id + ', this.value)" style="margin-top:4px;">' + assigneeOptions + '</select></div>' +
-      '<div class="task-detail-row"><div class="task-detail-label">Status</div><select class="form-select" onchange="App.updateTaskStatus(' + task.id + ', this.value)" style="margin-top:4px;"><option value="todo" ' + (task.status === 'todo' ? 'selected' : '') + '>Por Hacer</option><option value="progress" ' + (task.status === 'progress' ? 'selected' : '') + '>En Progreso</option><option value="done" ' + (task.status === 'done' ? 'selected' : '') + '>Hecho</option><option value="archive" ' + (task.status === 'archive' ? 'selected' : '') + '>Archivo</option></select></div>' +
+      '<div class="task-detail-row"><div class="task-detail-label">Status</div><select class="form-select" onchange="App.updateTaskStatus(' + task.id + ', this.value)" style="margin-top:4px;"><option value="todo" ' + (task.status === 'todo' ? 'selected' : '') + '>Por Hacer</option><option value="progress" ' + (task.status === 'progress' ? 'selected' : '') + '>En Progreso</option><option value="done" ' + (task.status === 'done' ? 'selected' : '') + '>Hecho</option><option value="archive" ' + (task.status === 'archive' ? 'selected' : '') + '>Backlog</option></select></div>' +
       '<div class="task-detail-row"><button class="btn btn-secondary" onclick="App.deleteTask(' + task.id + '); App.closeTaskDetail();" style="margin-top:12px;width:100%;color:var(--priority-high);border-color:var(--priority-high);">Eliminar Tarea</button></div>';
     document.getElementById('taskDetailModal').classList.add('active');
   },
@@ -904,7 +904,7 @@ const App = {
   renderPendientes() {
     const container = document.getElementById('pendientesContainer');
     const priorityOrder = { high: 1, medium: 2, low: 3 };
-    const statusLabels = { todo: 'Por Hacer', progress: 'En Progreso', done: 'Hecho', archive: 'Archivo' };
+    const statusLabels = { todo: 'Por Hacer', progress: 'En Progreso', done: 'Hecho', archive: 'Backlog' };
     // Only show tasks that are NOT done and NOT archived
     const activeTasks = this.data.tasks.filter(t => t.status !== 'archive' && t.status !== 'done');
     const activeGroupTasks = this.data.groupTasks.filter(t => t.status !== 'archive' && t.status !== 'done');
