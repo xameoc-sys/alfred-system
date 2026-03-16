@@ -956,6 +956,16 @@ const App = {
       });
       html += '</div>';
     });
+    // Add unassigned tasks section
+    const unassignedTasks = this.data.tasks.filter(t => t.status !== 'archive' && t.status !== 'done' && !t.assignee);
+    if (unassignedTasks.length > 0) {
+      html += '<div class="pendientes-group"><div class="pendientes-group-title">⚠️ Sin Asignar</div>';
+      unassignedTasks.forEach(task => {
+        const goalName = task.goalId ? (this.data.goals.find(g => g.id === task.goalId)?.title || 'Sin objetivo') : 'Sin objetivo';
+        html += '<div class="pendientes-task" onclick="App.openTaskDetail(' + task.id + ')"><span class="pendientes-task-priority ' + task.priority + '"></span><div class="pendientes-task-info"><div class="pendientes-task-title">' + task.title + '</div><div class="pendientes-task-meta">' + (task.dueDate || 'Sin fecha') + ' • ' + goalName + '</div></div><span class="pendientes-task-status ' + task.status + '">' + statusLabels[task.status] + '</span></div>';
+      });
+      html += '</div>';
+    }
     container.innerHTML = html;
   },
   renderGoals() {
